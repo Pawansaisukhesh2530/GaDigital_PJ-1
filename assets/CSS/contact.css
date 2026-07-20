@@ -1,0 +1,20 @@
+
+@media (max-width: 992px) {
+    .contact-hero-container {
+        flex-direction: column;
+    }
+    .contact-hero-content, .contact-hero-stats {
+        width: 100%;
+    }
+    
+    .contact-grid {
+        flex-direction: column;
+    }
+    .contact-info-col, .contact-form-col {
+        width: 100%;
+    }
+    
+    .locations-grid {
+        grid-template-columns: 1fr !important;
+    }
+}

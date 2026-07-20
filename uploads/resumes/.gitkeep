@@ -1,0 +1,2 @@
+# This file keeps the uploads/resumes directory in version control.
+# Actual uploaded resumes are ignored via .gitignore to protect candidate PII.

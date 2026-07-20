@@ -1,0 +1,70 @@
+# =============================================================================
+# CPVIA Recruitment System - .gitignore
+# Protects candidate data, admin credentials, and runtime artifacts.
+# Source code and required assets ARE tracked.
+# =============================================================================
+
+# ----- SQLite databases (contain admin password hashes + candidate data) -----
+*.sqlite
+*.sqlite3
+*.db
+# SQLite WAL / SHM runtime sidecar files
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+*-wal
+*-shm
+
+# ----- Database backups (contain live data) -----
+admin/backups/
+*-backup.sqlite
+*_backup.sqlite
+
+# ----- Uploaded candidate resumes (PII) -----
+/uploads/resumes/*
+!/uploads/resumes/.gitkeep
+
+# ----- PHP session files -----
+admin/sessions/sess_*
+sess_*
+
+# ----- Environment / secrets -----
+.env
+.env.*
+*.pem
+*.key
+secrets.php
+config.local.php
+
+# ----- Archives / delivery bundles (may contain data copies) -----
+cpvia-pramod.zip
+cpvia-pramod/
+*.zip
+
+# ----- Temporary migration/testing artifacts -----
+_inspect_schema.php
+_regression_test.php
+_fk_test.php
+_fresh_install_test.php
+_verify_backup.php
+_fresh_test_*.sqlite
+_*.tmp
+
+# ----- Logs -----
+*.log
+logs/
+
+# ----- OS-generated files -----
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ----- IDE / editor -----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.kiro/
