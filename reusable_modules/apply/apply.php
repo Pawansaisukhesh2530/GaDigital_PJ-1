@@ -1,11 +1,31 @@
 <?php
-
+/**
+ * apply.php — Public 7-Step Candidate Application Wizard
+ * -----------------------------------------------------------------------------
+ * Flow: 1) Resume Upload & AI Preparation  2) Personal  3) Professional
+ *       4) Education  5) Skills  6) Additional Questions  7) Review & Submit
+ *
+ * Stores a complete application across the migrated recruitment schema
+ * (applications, application_professional_details, application_education,
+ * application_documents, application_skills) atomically, while preserving the
+ * legacy fields the Admin still depends on (job_title, name, email, phone,
+ * resume_path). Reuses the public CPVIA design system. No candidate login.
+ *
+ * FUTURE AI AUTO-FILL: Step 1 collects the resume first. A future parser can
+ * populate later steps by writing values into the matching field ids / the
+ * localStorage draft and calling the JS hook window.cpviaApplyAutofill(data).
+ * No parsing is performed today.
+ * -----------------------------------------------------------------------------
+ */
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/apply_helpers.php';
 
 $db_file = __DIR__ . '/admin/cpvia_database.sqlite';
 $uploads_dir = __DIR__ . '/uploads/resumes';
 
+// Lightweight session for CSRF only (no candidate accounts).
+// Use a local, writable session directory so we don't depend on the server's
+// default save path (e.g. C:\xampp\tmp) being writable.
 if (session_status() === PHP_SESSION_NONE) {
     $apply_sess_dir = __DIR__ . '/sessions';
     if (!is_dir($apply_sess_dir)) {

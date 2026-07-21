@@ -76,6 +76,8 @@ include __DIR__ . '/partials/layout_top.php';
         <div class="alert alert-success">Job updated successfully.</div>
     <?php elseif ($flash_success === 'deleted'): ?>
         <div class="alert alert-success">Job deleted successfully.</div>
+    <?php elseif ($flash_success === 'draft'): ?>
+        <div class="alert alert-success">Draft saved successfully.</div>
     <?php endif; ?>
 
     <?php if (isset($error)): ?>
@@ -106,6 +108,7 @@ include __DIR__ . '/partials/layout_top.php';
             <select name="status" id="status_filter">
                 <option value="" <?php echo empty($status_filter) ? 'selected' : ''; ?>>All</option>
                 <option value="Active" <?php echo $status_filter === 'Active' ? 'selected' : ''; ?>>Active</option>
+                <option value="Draft" <?php echo $status_filter === 'Draft' ? 'selected' : ''; ?>>Draft</option>
                 <option value="Closed" <?php echo $status_filter === 'Closed' ? 'selected' : ''; ?>>Closed</option>
             </select>
             <button type="submit" class="btn-search">Filter</button>

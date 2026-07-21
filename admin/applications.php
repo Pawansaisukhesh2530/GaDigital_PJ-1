@@ -132,12 +132,13 @@ include __DIR__ . '/partials/layout_top.php';
                 <?php if (count($applications) > 0): ?>
                     <?php foreach ($applications as $app): ?>
                     <?php $current_status = $app['status'] ?? 'New'; ?>
-                    <tr>
+                    <?php $detail_url = 'application_details.php?id=' . (int) $app['id']; ?>
+                    <tr class="clickable-row" data-href="<?php echo htmlspecialchars($detail_url); ?>" tabindex="0" title="Open applicant profile">
                         <td>#<?php echo htmlspecialchars($app['id']); ?></td>
                         <td class="date-text"><?php echo htmlspecialchars(date('M d, Y', strtotime($app['created_at']))); ?></td>
                         <td><span class="job-badge"><?php echo htmlspecialchars($app['job_title']); ?></span></td>
                         <td>
-                            <strong><?php echo htmlspecialchars($app['name']); ?></strong><br>
+                            <a href="<?php echo htmlspecialchars($detail_url); ?>" class="applicant-name-link"><?php echo htmlspecialchars($app['name']); ?></a><br>
                         </td>
                         <td>
                             <a href="mailto:<?php echo htmlspecialchars($app['email']); ?>" style="color: #3D1A8A; text-decoration: none;"><?php echo htmlspecialchars($app['email']); ?></a><br>
@@ -191,5 +192,23 @@ include __DIR__ . '/partials/layout_top.php';
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    var INTERACTIVE = 'a, button, select, input, textarea, label, form';
+    document.querySelectorAll('tr.clickable-row').forEach(function (row) {
+        var url = row.getAttribute('data-href');
+        if (!url) { return; }
+        row.addEventListener('click', function (e) {
+            if (e.target.closest(INTERACTIVE)) { return; }
+            window.location.href = url;
+        });
+        row.addEventListener('keydown', function (e) {
+            if ((e.key === 'Enter') && !e.target.closest(INTERACTIVE)) { window.location.href = url; }
+        });
+    });
+});
+</script>
 
 <?php include __DIR__ . '/partials/layout_bottom.php'; ?>

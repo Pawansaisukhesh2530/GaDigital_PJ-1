@@ -27,10 +27,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt->execute([$status, $id]);
 
-    } catch(Exception $e){
-        die($e->getMessage());
+    } catch (Exception $e) {
+        // Do not expose raw database errors to the browser.
+        header('Location: applications.php?error=update');
+        exit;
     }
 
+    // Optionally return to the applicant profile page it was submitted from.
+    if (($_POST['redirect'] ?? '') === 'details') {
+        header('Location: application_details.php?id=' . $id . '&updated=1');
+        exit;
+    }
 }
 
 header("Location: applications.php");

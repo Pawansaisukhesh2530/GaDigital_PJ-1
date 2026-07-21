@@ -11,8 +11,6 @@ if (!file_exists($uploads_dir)) {
     mkdir($uploads_dir, 0777, true);
 }
 
-// Path may be overridden (e.g. for testing a fresh install) by defining
-// CPVIA_INIT_DB_PATH before including this file. Defaults to the live DB.
 $db_file = defined('CPVIA_INIT_DB_PATH') ? CPVIA_INIT_DB_PATH : $admin_dir . '/cpvia_database.sqlite';
 
 try {
@@ -158,6 +156,14 @@ try {
         FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
         FOREIGN KEY (skill_id)       REFERENCES skills(id)       ON DELETE CASCADE
     )");
+
+    /* ---------------- Performance indexes (non-destructive) ---------------- */
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_applications_job_id ON applications(job_id)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_applications_created ON applications(created_at)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_app_education_app ON application_education(application_id)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_app_documents_app ON application_documents(application_id)");
 
     /* ---------------- Seed master skills (idempotent) ---------------- */
     $seed_skills = [
