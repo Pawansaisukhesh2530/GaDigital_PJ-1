@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../settings_helpers.php';
 
 if (!function_exists('cpvia_job_status')) {
     function cpvia_job_status(string $key): string
@@ -182,7 +183,25 @@ if (!function_exists('cpvia_default_job_values')) {
             'description' => '', 'responsibilities' => '', 'requirements' => '', 'benefits' => '',
             'preferred_notice_period' => '', 'gender_preference' => 'Any',
             'minimum_age' => '', 'maximum_age' => '',
+            // Application Delivery (per-job)
+            'submission_mode' => 'BACKEND_ONLY', 'recipient_emails' => '',
         ];
+    }
+}
+
+/** Allowed submission modes for the Application Delivery section. */
+if (!function_exists('cpvia_submission_modes')) {
+    function cpvia_submission_modes(): array
+    {
+        return ['BACKEND_ONLY', 'EMAIL_ONLY', 'BACKEND_AND_EMAIL'];
+    }
+}
+
+/** True when the given submission mode requires at least one recipient email. */
+if (!function_exists('cpvia_mode_needs_email')) {
+    function cpvia_mode_needs_email(string $mode): bool
+    {
+        return in_array($mode, ['EMAIL_ONLY', 'BACKEND_AND_EMAIL'], true);
     }
 }
 
@@ -221,6 +240,15 @@ if (!function_exists('cpvia_collect_job_post')) {
         }
         if ($values['gender_preference'] === '') {
             $values['gender_preference'] = 'Any';
+        }
+
+        // Application Delivery: normalise the mode to a known value.
+        if (!in_array($values['submission_mode'], cpvia_submission_modes(), true)) {
+            $values['submission_mode'] = 'BACKEND_ONLY';
+        }
+        // Recipient emails only matter when the mode uses email.
+        if (!cpvia_mode_needs_email($values['submission_mode'])) {
+            $values['recipient_emails'] = '';
         }
 
         return [
@@ -272,6 +300,23 @@ if (!function_exists('cpvia_validate_job')) {
         $maxA = $num($values['maximum_age']);
         if ($minA !== null && $maxA !== null && $maxA < $minA) {
             return 'Maximum age cannot be lower than minimum age.';
+        }
+
+        // Application Delivery validation.
+        if (!in_array($values['submission_mode'], cpvia_submission_modes(), true)) {
+            return 'Please choose a valid Application Delivery option.';
+        }
+        if (cpvia_mode_needs_email($values['submission_mode'])) {
+            $raw = trim((string) ($values['recipient_emails'] ?? ''));
+            // Always reject malformed input; only require presence when publishing.
+            if ($raw !== '') {
+                $parsed = cpvia_parse_email_list($raw);
+                if (!$parsed['ok']) {
+                    return $parsed['error'];
+                }
+            } elseif ($action === 'publish') {
+                return 'Please provide at least one recipient email for the selected delivery option.';
+            }
         }
 
         // Job Code uniqueness (only when provided). Excludes the current job on Edit.
@@ -366,6 +411,15 @@ if (!function_exists('cpvia_job_param_map')) {
             ':minimum_age' => $numOrNull($values['minimum_age']),
             ':maximum_age' => $numOrNull($values['maximum_age']),
             ':updated_at' => $updatedAt,
+            ':submission_mode' => in_array($values['submission_mode'] ?? '', cpvia_submission_modes(), true)
+                ? $values['submission_mode'] : 'BACKEND_ONLY',
+            ':recipient_emails' => (function () use ($values) {
+                if (!cpvia_mode_needs_email($values['submission_mode'] ?? 'BACKEND_ONLY')) {
+                    return null;
+                }
+                $parsed = cpvia_parse_email_list($values['recipient_emails'] ?? '');
+                return $parsed['ok'] && $parsed['normalized'] !== '' ? $parsed['normalized'] : null;
+            })(),
         ];
     }
 }

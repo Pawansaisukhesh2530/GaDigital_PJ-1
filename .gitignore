@@ -25,6 +25,11 @@ admin/backups/
 /uploads/resumes/*
 !/uploads/resumes/.gitkeep
 
+# ----- Temporary EMAIL_ONLY attachment staging (transient PII) -----
+/uploads/pending/*
+!/uploads/pending/.gitkeep
+!/uploads/pending/.htaccess
+
 # ----- PHP session files -----
 admin/sessions/sess_*
 sess_*
@@ -50,6 +55,22 @@ _fresh_install_test.php
 _verify_backup.php
 _fresh_test_*.sqlite
 _*.tmp
+# Ad-hoc diagnostic/one-off scripts (all prefixed with underscore at project root)
+/_*.php
+
+# ----- Generic backup / temp file patterns -----
+*.bak
+*.old
+*.tmp
+*.backup
+*.orig
+
+# ----- Python cache (AI resume service) -----
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
 
 # ----- Logs -----
 *.log

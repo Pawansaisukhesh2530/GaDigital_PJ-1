@@ -277,6 +277,19 @@
                 parseInt(val('minimum_age'), 10) > parseInt(val('maximum_age'), 10)) {
                 fail('maximum_age', 'Max age must be greater than or equal to min age.');
             }
+            // Application Delivery
+            var mode = selectedMode();
+            if (modeNeedsEmail(mode)) {
+                var raw = val('recipient_emails');
+                if (!raw) {
+                    fail('recipient_emails', 'Add at least one recipient email for this delivery option.');
+                } else {
+                    var parsed = parseEmailList(raw);
+                    if (!parsed.ok || !parsed.emails.length) {
+                        fail('recipient_emails', 'Enter valid email addresses separated by commas.');
+                    }
+                }
+            }
         }
         return ok;
     }
@@ -284,6 +297,42 @@
     function val(id) {
         var el = document.getElementById(id);
         return el ? el.value.trim() : '';
+    }
+
+    /* --------------------------------------------------- application delivery */
+    function selectedMode() {
+        var checked = wizard.querySelector('input[name="submission_mode"]:checked');
+        return checked ? checked.value : 'BACKEND_ONLY';
+    }
+    function modeNeedsEmail(mode) {
+        return mode === 'EMAIL_ONLY' || mode === 'BACKEND_AND_EMAIL';
+    }
+    function modeLabel(mode) {
+        if (mode === 'EMAIL_ONLY') { return 'Email Only'; }
+        if (mode === 'BACKEND_AND_EMAIL') { return 'Backend Dashboard + Email'; }
+        return 'Backend Dashboard Only';
+    }
+    function parseEmailList(raw) {
+        // Mirror of the server-side validator (settings_helpers.php).
+        if (/[\r\n\t\0]/.test(raw)) { return { ok: false, emails: [] }; }
+        var parts = raw.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        var emails = [];
+        for (var i = 0; i < parts.length; i++) {
+            if (!re.test(parts[i])) { return { ok: false, emails: [] }; }
+            emails.push(parts[i]);
+        }
+        return { ok: true, emails: emails };
+    }
+    function initDelivery() {
+        var radios = wizard.querySelectorAll('input[name="submission_mode"]');
+        var group = document.getElementById('recipientEmailsGroup');
+        if (!radios.length || !group) { return; }
+        function refresh() {
+            group.style.display = modeNeedsEmail(selectedMode()) ? '' : 'none';
+        }
+        radios.forEach(function (r) { r.addEventListener('change', refresh); });
+        refresh();
     }
 
     /* --------------------------------------------------------- navigation */
@@ -379,6 +428,10 @@
             ['Notice Period', val('preferred_notice_period')], ['Gender Preference', selText('gender_preference')],
             ['Min Age', val('minimum_age')], ['Max Age', val('maximum_age')]
         ]));
+        var dMode = selectedMode();
+        var deliveryRows = [['Receive Via', modeLabel(dMode)]];
+        if (modeNeedsEmail(dMode)) { deliveryRows.push(['Recipient Email(s)', val('recipient_emails') || '—']); }
+        html += card('Application Delivery', 7, rowsHtml(deliveryRows));
 
         grid.innerHTML = html;
         grid.querySelectorAll('.review-edit').forEach(function (b) {
@@ -405,6 +458,7 @@
     /* -------------------------------------------------------------- wire up */
     wizard.querySelectorAll('.rte').forEach(initEditor);
     wizard.querySelectorAll('.skill-picker').forEach(initSkillPicker);
+    initDelivery();
 
     btnNext.addEventListener('click', goNext);
     btnPrev.addEventListener('click', goPrev);

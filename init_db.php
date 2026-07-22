@@ -53,7 +53,9 @@ try {
         gender_preference TEXT DEFAULT 'Any',
         minimum_age INTEGER,
         maximum_age INTEGER,
-        updated_at DATETIME
+        updated_at DATETIME,
+        submission_mode TEXT DEFAULT 'BACKEND_ONLY',
+        recipient_emails TEXT
     )");
 
     /* ---------------- Core: applications (full schema) ---------------- */
@@ -82,6 +84,40 @@ try {
 
     /* ---------------- Admins ---------------- */
     cpvia_ensure_admins_table($pdo);
+
+    /* ---------------- Global settings (SMTP + email template) ---------------- */
+    $pdo->exec("CREATE TABLE IF NOT EXISTS app_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    /* ---------------- Pending email applications (durable review workflow) ---------------- */
+    $pdo->exec("CREATE TABLE IF NOT EXISTS pending_email_applications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        token TEXT NOT NULL UNIQUE,
+        job_id INTEGER,
+        application_id INTEGER,
+        mode TEXT NOT NULL,
+        recipient_emails TEXT NOT NULL,
+        candidate_name TEXT,
+        candidate_email TEXT,
+        candidate_phone TEXT,
+        job_title TEXT,
+        subject TEXT,
+        body TEXT,
+        resume_path TEXT,
+        resume_original TEXT,
+        cover_path TEXT,
+        cover_original TEXT,
+        payload TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        attempts INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME,
+        expires_at DATETIME
+    )");
 
     /* ---------------- Skills master ---------------- */
     $pdo->exec("CREATE TABLE IF NOT EXISTS skills (
@@ -164,6 +200,8 @@ try {
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status)");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_app_education_app ON application_education(application_id)");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_app_documents_app ON application_documents(application_id)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_pending_token ON pending_email_applications(token)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_email_applications(status)");
 
     /* ---------------- Seed master skills (idempotent) ---------------- */
     $seed_skills = [

@@ -383,6 +383,49 @@ $wizard_context = $wizard_context ?? null;
                     <small class="field-error" data-error-for="maximum_age"></small>
                 </div>
             </div>
+
+            <?php
+            $sub_mode = in_array($values['submission_mode'] ?? '', ['BACKEND_ONLY', 'EMAIL_ONLY', 'BACKEND_AND_EMAIL'], true)
+                ? $values['submission_mode'] : 'BACKEND_ONLY';
+            $needs_email = in_array($sub_mode, ['EMAIL_ONLY', 'BACKEND_AND_EMAIL'], true);
+            ?>
+            <div class="wizard-subhead">Application Delivery</div>
+            <p class="form-section-sub">Choose how applications for <strong>this job</strong> are received. SMTP is configured once in <a href="settings.php">Settings</a>.</p>
+
+            <div class="form-group">
+                <label>Receive Applications Via <span class="req">*</span></label>
+                <div class="delivery-options" id="deliveryOptions">
+                    <label class="delivery-option">
+                        <input type="radio" name="submission_mode" value="BACKEND_ONLY" <?php echo $sub_mode === 'BACKEND_ONLY' ? 'checked' : ''; ?>>
+                        <span class="delivery-option-body">
+                            <span class="delivery-option-title">Backend Dashboard Only</span>
+                            <span class="delivery-option-desc">Applications are saved to the admin dashboard. No email is sent.</span>
+                        </span>
+                    </label>
+                    <label class="delivery-option">
+                        <input type="radio" name="submission_mode" value="EMAIL_ONLY" <?php echo $sub_mode === 'EMAIL_ONLY' ? 'checked' : ''; ?>>
+                        <span class="delivery-option-body">
+                            <span class="delivery-option-title">Email Only</span>
+                            <span class="delivery-option-desc">Applications are emailed to your recipients. Nothing is stored in the dashboard.</span>
+                        </span>
+                    </label>
+                    <label class="delivery-option">
+                        <input type="radio" name="submission_mode" value="BACKEND_AND_EMAIL" <?php echo $sub_mode === 'BACKEND_AND_EMAIL' ? 'checked' : ''; ?>>
+                        <span class="delivery-option-body">
+                            <span class="delivery-option-title">Backend Dashboard + Email</span>
+                            <span class="delivery-option-desc">Applications are saved to the dashboard and emailed to your recipients.</span>
+                        </span>
+                    </label>
+                </div>
+                <small class="field-error" data-error-for="submission_mode"></small>
+            </div>
+
+            <div class="form-group" id="recipientEmailsGroup" style="<?php echo $needs_email ? '' : 'display:none;'; ?>">
+                <label for="recipient_emails">Recipient Email(s) <span class="req">*</span></label>
+                <textarea id="recipient_emails" name="recipient_emails" rows="2" aria-describedby="hint-recipients" placeholder="hr@company.com, manager@company.com"><?php echo htmlspecialchars($values['recipient_emails'] ?? ''); ?></textarea>
+                <small class="field-hint" id="hint-recipients">One or more addresses separated by commas. All applications for this job are sent here.</small>
+                <small class="field-error" data-error-for="recipient_emails"></small>
+            </div>
         </section>
 
         <!-- ============ STEP 8: Review ============ -->

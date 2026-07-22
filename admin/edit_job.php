@@ -85,7 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     salary_type = :salary_type, min_salary = :min_salary, max_salary = :max_salary, currency = :currency,
                     responsibilities = :responsibilities, benefits = :benefits,
                     preferred_notice_period = :preferred_notice_period, gender_preference = :gender_preference,
-                    minimum_age = :minimum_age, maximum_age = :maximum_age, updated_at = :updated_at
+                    minimum_age = :minimum_age, maximum_age = :maximum_age, updated_at = :updated_at,
+                    submission_mode = :submission_mode, recipient_emails = :recipient_emails
                 WHERE id = :id
             ");
 
