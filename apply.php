@@ -248,6 +248,7 @@ function av(array $old, string $key, string $default = ''): string
 include __DIR__ . '/header.php';
 ?>
 <link rel="stylesheet" href="assets/CSS/apply_wizard.css">
+<link rel="stylesheet" href="assets/CSS/apply_resume_ai.css">
 
 <div class="apply-wrap">
 <?php if ($success): ?>
@@ -341,11 +342,6 @@ include __DIR__ . '/header.php';
             <h2>Resume Upload</h2>
             <p class="apply-card-sub">Start by uploading your resume. PDF, DOC or DOCX &middot; up to 5&nbsp;MB.</p>
 
-            <div class="apply-ai-note">
-                <span class="apply-ai-badge">Coming soon</span>
-                <span>Automatic Resume Parsing will be available soon — it will read your resume and pre-fill the next steps for you. For now, please upload your resume and continue filling the form.</span>
-            </div>
-
             <div class="apply-field">
                 <label for="resume">Resume <span class="req">*</span></label>
                 <div class="apply-file apply-file--drop" data-file-for="resume">
@@ -358,6 +354,20 @@ include __DIR__ . '/header.php';
                     </div>
                 </div>
                 <small class="apply-err" data-error-for="resume"><?php echo htmlspecialchars($errors['resume'] ?? ''); ?></small>
+            </div>
+
+            <!-- Optional AI auto-fill: reads the uploaded resume to pre-fill later steps -->
+            <div class="apply-ai-box" id="aiAutofillBox">
+                <div class="apply-ai-box-head">
+                    <span class="apply-ai-badge-new">New</span>
+                    <strong>Auto-fill from resume</strong>
+                </div>
+                <p class="apply-ai-box-sub">Upload your resume above, then let us read it to pre-fill your application. You can review and edit everything before submitting. This is optional — you can also fill the form manually.</p>
+                <button type="button" class="apply-btn apply-btn-primary apply-ai-analyze" id="aiAnalyzeBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"></path><path d="m16.2 7.8 2.9-2.9"></path><path d="M18 12h4"></path><path d="m16.2 16.2 2.9 2.9"></path><path d="M12 18v4"></path><path d="m4.9 19.1 2.9-2.9"></path><path d="M2 12h4"></path><path d="m4.9 4.9 2.9 2.9"></path></svg>
+                    <span>Analyze Resume &amp; Pre-fill</span>
+                </button>
+                <div class="apply-ai-status" id="aiStatus" aria-live="polite"></div>
             </div>
 
             <div class="apply-grid-2">
@@ -614,5 +624,6 @@ include __DIR__ . '/header.php';
     };
 </script>
 <script src="assets/js/apply_wizard.js"></script>
+<script src="assets/js/apply_resume_ai.js"></script>
 
 <?php include __DIR__ . '/footer.php'; ?>

@@ -39,7 +39,9 @@
     function el(id) { return document.getElementById(id); }
     function val(id) { var e = el(id); return e ? e.value.trim() : ''; }
     function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-    function isUrl(v) { return /^https?:\/\/.+/i.test(v); }
+    // Accept URLs with or without a scheme (e.g. "www.linkedin.com/in/you").
+    // We never force the candidate to type "https://".
+    function isUrl(v) { return /^(https?:\/\/)?([\w-]+\.)+[a-z]{2,}(\/\S*)?$/i.test(v); }
 
     function setErr(field, msg) {
         var box = form.querySelector('.apply-err[data-error-for="' + field + '"]');
@@ -68,7 +70,7 @@
             if (!isEmail(val('email'))) { fail('email', 'Enter a valid email address.'); }
             if (!/^[0-9+\-\s()]{7,20}$/.test(val('mobile'))) { fail('mobile', 'Enter a valid mobile number.'); }
             if (!val('current_location')) { fail('current_location', 'Current location is required.'); }
-            if (val('linkedin_profile') && !isUrl(val('linkedin_profile'))) { fail('linkedin_profile', 'Enter a valid http(s) URL or leave blank.'); }
+            if (val('linkedin_profile') && !isUrl(val('linkedin_profile'))) { fail('linkedin_profile', 'Enter a valid URL or leave blank.'); }
         } else if (n === 3) {
             var te = parseFloat(val('total_experience'));
             var re = parseFloat(val('relevant_experience'));
@@ -221,28 +223,59 @@
         });
     });
 
-    /* ------------------------------------------------ future AI auto-fill hook
-       A future resume parser can populate the wizard without any rewrite:
-         window.cpviaApplyAutofill({ full_name:'…', email:'…', skills:[1,2], … });
-       Only known field ids / skills are applied; nothing is parsed here today. */
-    window.cpviaApplyAutofill = function (data) {
-        if (!data || typeof data !== 'object') { return; }
-        Object.keys(data).forEach(function (f) {
-            if (f === 'skills' || f === 'willing_to_relocate') { return; }
-            var e = el(f);
-            if (e && (typeof data[f] === 'string' || typeof data[f] === 'number')) { e.value = data[f]; }
-        });
-        if (Array.isArray(data.skills)) {
-            data.skills.map(Number).forEach(function (id) {
-                if (skillById[id] && selectedSkills.indexOf(id) === -1) { selectedSkills.push(id); }
-            });
+    /* ---------------------------------------- public API for the optional
+       resume auto-fill module (assets/js/apply_resume_ai.js).
+       Additive and safe: existing candidate-entered values are never
+       overwritten, unknown fields/skills are ignored, and every mutation
+       reuses the existing draft auto-save. */
+    window.CPVIAApplyWizard = {
+        fieldExists: function (id) { return !!el(id); },
+        getFieldValue: function (id) { return val(id); },
+        isFieldEmpty: function (id) { var e = el(id); return !e || String(e.value).trim() === ''; },
+        /** Fill a field ONLY when it is currently empty. Returns true if filled. */
+        setFieldIfEmpty: function (id, value) {
+            var e = el(id);
+            if (!e) { return false; }
+            if (String(e.value).trim() !== '') { return false; } // protect user data
+            var v = (value == null) ? '' : String(value).trim();
+            if (v === '') { return false; }
+            if (e.tagName === 'SELECT') {
+                var matched = false;
+                Array.prototype.forEach.call(e.options, function (o) { if (o.value === v) { matched = true; } });
+                if (!matched) { return false; } // never inject an invalid option
+            }
+            e.value = v;
+            saveDraft();
+            return true;
+        },
+        listSkills: function () { return skills.slice(); },
+        isSkillSelected: function (id) { return selectedSkills.indexOf(Number(id)) !== -1; },
+        selectSkillById: function (id) {
+            id = Number(id);
+            if (!skillById[id]) { return false; }
+            if (selectedSkills.indexOf(id) === -1) { selectedSkills.push(id); commitSkills(); saveDraft(); }
+            return true;
+        },
+        /** Clear a field's value (used to undo an auto-fill). */
+        clearField: function (id) {
+            var e = el(id);
+            if (!e) { return false; }
+            e.value = '';
+            saveDraft();
+            return true;
+        },
+        /** Remove a selected skill chip by id (used to undo an auto-fill). */
+        deselectSkillById: function (id) {
+            id = Number(id);
+            var i = selectedSkills.indexOf(id);
+            if (i === -1) { return false; }
+            selectedSkills.splice(i, 1);
             commitSkills();
-        }
-        if (['0', '1', 0, 1].indexOf(data.willing_to_relocate) !== -1) {
-            relocateInput.value = String(data.willing_to_relocate);
-            syncRelocateRadios();
-        }
-        saveDraft();
+            saveDraft();
+            return true;
+        },
+        goToStep: function (n) { show(n); },
+        saveDraft: function () { saveDraft(); }
     };
 
     /* ------------------------------------------------------- textarea count */

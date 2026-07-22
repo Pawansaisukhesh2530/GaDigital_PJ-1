@@ -1,0 +1,11 @@
+Extract the professional summary / objective / profile paragraph from the SUMMARY section text below.
+
+Return a JSON object with EXACTLY this key:
+{
+  "summary": null
+}
+
+Rules:
+- Copy the summary text as written (light whitespace cleanup only). Do NOT rewrite, shorten, or embellish it.
+- If there is no summary text, return {"summary": null}.
+- Return ONLY the JSON object.

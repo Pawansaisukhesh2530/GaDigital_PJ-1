@@ -1,0 +1,26 @@
+Extract EVERY education entry from the EDUCATION section text below.
+
+RETURN EXACTLY ONE TOP-LEVEL KEY named "education" whose value is a JSON array:
+{
+  "education": [
+    { "degree": null, "institution": null, "field_of_study": null,
+      "start_date": null, "end_date": null, "grade": null, "description": null }
+  ]
+}
+
+The "education" value MUST ALWAYS be an array, even for a single entry. Do NOT
+return a bare object. Do NOT use any other top-level key.
+
+Rules:
+1. Create one object per distinct qualification / institution.
+2. Extract EVERY entry present in the source. Do NOT stop after the first one.
+3. Preserve the original order of the entries.
+4. Never combine two qualifications into one, and never invent an entry.
+5. Each element must have EXACTLY these keys:
+   "degree", "institution", "field_of_study", "start_date", "end_date", "grade", "description".
+6. Copy degrees, institutions and dates VERBATIM. Do NOT correct spelling or reformat.
+   NEVER guess a date or an institution.
+7. "grade" is a GPA/percentage/class only if explicitly stated.
+8. If there are no education entries, return {"education": []}.
+
+Return ONLY the JSON object.

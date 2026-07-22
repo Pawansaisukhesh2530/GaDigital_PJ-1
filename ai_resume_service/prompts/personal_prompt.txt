@@ -1,0 +1,21 @@
+Extract the candidate's personal / contact information from the PERSONAL section text below.
+
+Return a JSON object with EXACTLY these keys (use null when a value is not present):
+{
+  "name": null,
+  "designation": null,
+  "email": null,
+  "phone": null,
+  "location": null,
+  "linkedin": null,
+  "github": null,
+  "portfolio": null
+}
+
+Rules:
+- "designation" is the candidate's current role/title (e.g. "Student", "Software Engineer") only if stated.
+- "location" is a place (city/state/country) only if stated. Do not treat a full street address line as a name.
+- COPY email, phone, and every URL (LinkedIn, GitHub, portfolio) VERBATIM, character for
+  character. Do NOT correct spelling, drop or add characters, or reformat them in any way.
+- Do not fabricate any value.
+- Return ONLY the JSON object.

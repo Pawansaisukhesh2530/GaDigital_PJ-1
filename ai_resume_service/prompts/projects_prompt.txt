@@ -1,0 +1,29 @@
+Extract EVERY project from the PROJECTS section text below.
+
+RETURN EXACTLY ONE TOP-LEVEL KEY named "projects" whose value is a JSON array:
+{
+  "projects": [
+    { "project_name": "...", "description": "...", "technologies": ["..."] }
+  ]
+}
+
+The "projects" value MUST ALWAYS be an array, even when there is only one
+project. Do NOT return a bare object. Do NOT use any other top-level key.
+
+Rules:
+1. Extract EVERY project explicitly present in the source. Do NOT stop after the first one.
+2. Preserve the original order of the projects.
+3. Never combine multiple projects into a single entry.
+4. Never split one project into several entries.
+5. Never invent a project, a description, or a technology.
+6. Return an empty array {"projects": []} if there are no projects.
+7. Each element must have EXACTLY these keys: "project_name", "description", "technologies".
+8. Copy the project name and description VERBATIM. Do NOT correct spelling or reformat.
+9. "technologies" is an array of the tools/languages explicitly listed for that project
+   (e.g. from a "– Python, Flask" part). If none are listed, use [].
+
+If the source contains N clearly identifiable project lines, the output should
+normally contain N project entries unless there is a legitimate reason they
+cannot be separated.
+
+Return ONLY the JSON object.
