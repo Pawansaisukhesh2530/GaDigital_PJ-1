@@ -1,0 +1,51 @@
+Categorize the candidate's skills using the context(s) supplied below.
+
+Return a JSON object with EXACTLY these keys, each an array of strings:
+{
+  "programming_languages": [],
+  "frameworks": [],
+  "libraries": [],
+  "databases": [],
+  "tools": [],
+  "cloud": [],
+  "operating_systems": [],
+  "core_subjects": [],
+  "soft_skills": [],
+  "other": []
+}
+
+You may be given TWO contexts:
+- A PRIMARY SKILLS SECTION — the authoritative skills text.
+- An optional AUXILIARY RECOVERY CONTEXT — text from a neighboring section that
+  the upstream parser may have mixed together, which can contain technical
+  skills that were misplaced.
+
+CRITICAL ANTI-HALLUCINATION RULE:
+- Output ONLY skills whose exact words literally appear in the PRIMARY or
+  AUXILIARY text above. If a skill is not written there, it MUST NOT appear in
+  your output, no matter how common it is.
+- The category descriptions below are DEFINITIONS ONLY. They are NOT the
+  candidate's skills. Never output a term just because it defines a category.
+- Leave a category as an empty array [] if the text lists nothing for it.
+
+Other rules:
+- Do NOT treat spoken/human languages (Telugu, English, Hindi, ...) as
+  programming languages or as skills of any kind.
+- Do NOT treat experience sentences or descriptions as skills unless an explicit
+  technology / tool / subject is named within them.
+- Place each skill into the single most appropriate category. Do NOT duplicate a
+  skill across categories.
+
+Category definitions (for placement only, not data):
+- programming_languages: general-purpose coding languages.
+- frameworks: application/web frameworks.
+- libraries: code libraries or packages.
+- databases: database engines or data stores.
+- tools: developer tools / software / APIs.
+- cloud: cloud platforms or services.
+- operating_systems: operating systems.
+- core_subjects: academic computer-science subjects / course topics.
+- soft_skills: interpersonal or professional skills.
+- other: anything explicitly listed that fits no category above.
+
+Return ONLY the JSON object.

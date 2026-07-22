@@ -1,0 +1,28 @@
+Extract ONLY spoken / written human languages from the LANGUAGES section text below.
+
+RETURN EXACTLY ONE TOP-LEVEL KEY named "languages" whose value is a JSON array:
+{
+  "languages": [
+    { "language": "Telugu", "proficiency": "Fluent" }
+  ]
+}
+
+The top-level key MUST be exactly "languages". Do NOT return "language",
+"spoken_languages", "language_skills", or any other variation. Do NOT return a
+bare array.
+
+Rules:
+- Each element must have EXACTLY these keys: "language" and "proficiency".
+- One object per spoken/written language actually listed
+  (e.g. "Telugu(Fluent)" -> {"language":"Telugu","proficiency":"Fluent"}).
+- Extract EVERY spoken/written language listed, even when NO proficiency is given
+  (e.g. "Hindi" -> {"language":"Hindi","proficiency":null}). Do NOT omit a language
+  merely because its proficiency is missing.
+- "proficiency" only if stated (Fluent, Native, Intermediate, Basics, ...). Otherwise null.
+- These are HUMAN languages ONLY. NEVER include programming languages
+  (Java, Python, C++, R, JavaScript, ...), academic/technical subjects
+  (DBMS, Operating Systems, Computer Networks, Software Engineering, IoT, ...),
+  or any experience/description sentence.
+- NEVER invent a language or a proficiency level.
+- If there are no spoken languages, return {"languages": []}.
+- Return ONLY the JSON object.

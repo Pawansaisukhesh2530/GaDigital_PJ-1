@@ -1,0 +1,32 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Environment secrets
+.env
+
+# Runtime scratch space (keep the folders, ignore their contents)
+temp/*
+!temp/.gitkeep
+output/*
+!output/.gitkeep
+
+# Per-request API workspaces (isolated, auto-cleaned)
+runtime/
+
+# Test resumes may contain real personal data — do not commit them
+tests/*
+!tests/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

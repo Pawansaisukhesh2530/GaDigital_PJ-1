@@ -1,0 +1,30 @@
+Extract EVERY work experience entry from the EXPERIENCE section text below.
+
+RETURN EXACTLY ONE TOP-LEVEL KEY named "experience" whose value is a JSON array:
+{
+  "experience": [
+    { "job_title": null, "company": null, "location": null,
+      "employment_type": null, "start_date": null, "end_date": null,
+      "currently_working": false, "description": [] }
+  ]
+}
+
+The "experience" value MUST ALWAYS be an array, even for a single role. Do NOT
+return a bare object. Do NOT use any other top-level key.
+
+Rules:
+1. Create one object per distinct role / company.
+2. Extract EVERY role present in the source. Do NOT stop after the first one.
+3. Preserve the original order of the roles.
+4. Never combine two roles into one, and never invent a role.
+5. Each element must have EXACTLY these keys:
+   "job_title", "company", "location", "employment_type", "start_date",
+   "end_date", "currently_working", "description".
+6. Copy job titles, companies and dates VERBATIM. Do NOT correct spelling or reformat.
+   NEVER guess or infer an employer, title, or date.
+7. "currently_working" is true ONLY if the text says the role is current/present/ongoing.
+8. "employment_type" (e.g. Internship, Full-time) only if explicitly stated.
+9. "description" is an array of the responsibility/achievement lines for that role, copied as written.
+10. If there are no experience entries, return {"experience": []}.
+
+Return ONLY the JSON object.
