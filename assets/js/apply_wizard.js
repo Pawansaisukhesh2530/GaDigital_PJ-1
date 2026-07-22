@@ -39,7 +39,9 @@
     function el(id) { return document.getElementById(id); }
     function val(id) { var e = el(id); return e ? e.value.trim() : ''; }
     function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-    function isUrl(v) { return /^https?:\/\/.+/i.test(v); }
+    // Accept URLs with or without a scheme (e.g. "www.linkedin.com/in/you").
+    // We never force the candidate to type "https://".
+    function isUrl(v) { return /^(https?:\/\/)?([\w-]+\.)+[a-z]{2,}(\/\S*)?$/i.test(v); }
 
     function setErr(field, msg) {
         var box = form.querySelector('.apply-err[data-error-for="' + field + '"]');
@@ -68,7 +70,7 @@
             if (!isEmail(val('email'))) { fail('email', 'Enter a valid email address.'); }
             if (!/^[0-9+\-\s()]{7,20}$/.test(val('mobile'))) { fail('mobile', 'Enter a valid mobile number.'); }
             if (!val('current_location')) { fail('current_location', 'Current location is required.'); }
-            if (val('linkedin_profile') && !isUrl(val('linkedin_profile'))) { fail('linkedin_profile', 'Enter a valid http(s) URL or leave blank.'); }
+            if (val('linkedin_profile') && !isUrl(val('linkedin_profile'))) { fail('linkedin_profile', 'Enter a valid URL or leave blank.'); }
         } else if (n === 3) {
             var te = parseFloat(val('total_experience'));
             var re = parseFloat(val('relevant_experience'));

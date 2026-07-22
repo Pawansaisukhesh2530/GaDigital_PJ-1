@@ -1,11 +1,20 @@
 from __future__ import annotations
 
+import re
+
 from schemas.resume_schema import (
     PASSTHROUGH_SECTIONS,
     PERSONAL_PARSER_FALLBACK,
     empty_resume,
 )
 from schemas.validators import is_valid_email, is_valid_phone
+
+# Free-mail / provider domains that must never be accepted as a "portfolio":
+# the parser sometimes captures the email's domain as the portfolio by mistake.
+_NON_PORTFOLIO_DOMAINS = {
+    "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com",
+    "icloud.com", "aol.com", "protonmail.com", "mail.com", "yandex.com",
+}
 
 # Deterministic-parser fields that must NOT be rewritten by the LLM when the
 # parser already has a valid value (Part 5). The LLM may only *fill* these when
@@ -74,12 +83,18 @@ class ResponseMerger:
             parser_personal = {}
         llm_personal = resume.get("personal", {}) or {}
 
+        # Resolve the email first so a bogus parser "portfolio" (== email domain)
+        # can be detected and rejected in favour of the LLM's real portfolio.
+        parser_email = str(parser_personal.get("email", "") or "").strip()
+        llm_email = str(llm_personal.get("email", "") or "").strip()
+        email_ctx = parser_email if is_valid_email(parser_email) else llm_email
+
         for schema_field, parser_field in PERSONAL_PARSER_FALLBACK.items():
             parser_val = str(parser_personal.get(parser_field, "") or "").strip()
             llm_val = str(llm_personal.get(schema_field, "") or "").strip()
 
             if schema_field in _EXACT_FIELDS:
-                chosen, source = self._choose_exact(schema_field, parser_val, llm_val)
+                chosen, source = self._choose_exact(schema_field, parser_val, llm_val, email_ctx)
             else:  # soft fields
                 chosen, source = self._choose_soft(parser_val, llm_val)
 
@@ -90,16 +105,32 @@ class ResponseMerger:
         resume["personal"] = llm_personal
 
     @staticmethod
-    def _choose_exact(field: str, parser_val: str, llm_val: str) -> tuple[str, str | None]:
-        parser_ok = bool(parser_val) and ResponseMerger._exact_is_valid(field, parser_val)
+    def _choose_exact(field: str, parser_val: str, llm_val: str, email: str = "") -> tuple[str, str | None]:
+        parser_bogus = field == "portfolio" and ResponseMerger._is_bogus_portfolio(parser_val, email)
+        llm_bogus = field == "portfolio" and ResponseMerger._is_bogus_portfolio(llm_val, email)
+
+        parser_ok = bool(parser_val) and ResponseMerger._exact_is_valid(field, parser_val) and not parser_bogus
         if parser_ok:
             return parser_val, _SRC_PARSER
-        if llm_val:
+        if llm_val and not llm_bogus:
             return llm_val, _SRC_QWEN
-        # Neither valid: keep any deterministic value verbatim rather than invent.
-        if parser_val:
+        # Neither preferred: keep a non-bogus deterministic value rather than invent.
+        if parser_val and not parser_bogus:
             return parser_val, _SRC_PARSER
         return "", None
+
+    @staticmethod
+    def _is_bogus_portfolio(value: str, email: str) -> bool:
+        """True if ``value`` is just the email/free-mail domain, not a real portfolio."""
+        if not value:
+            return False
+        v = re.sub(r"^https?://", "", value.strip().lower())
+        v = re.sub(r"^www\.", "", v).rstrip("/")
+        if v in _NON_PORTFOLIO_DOMAINS:
+            return True
+        if email and "@" in email and v == email.split("@", 1)[1].lower().strip():
+            return True
+        return False
 
     @staticmethod
     def _choose_soft(parser_val: str, llm_val: str) -> tuple[str, str | None]:

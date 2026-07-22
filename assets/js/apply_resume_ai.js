@@ -44,6 +44,12 @@
             .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
     function normSkill(s) { return String(s == null ? '' : s).trim().toLowerCase().replace(/\s+/g, ' '); }
+    // Ensure a URL has a scheme (candidate never has to type "https://").
+    function normUrl(v) {
+        v = String(v == null ? '' : v).trim();
+        if (!v) { return ''; }
+        return /^[a-z][a-z0-9+.\-]*:\/\//i.test(v) ? v : 'https://' + v.replace(/^\/+/, '');
+    }
     function setBusy(state) {
         analyzing = state;
         btn.disabled = state;
@@ -156,8 +162,8 @@
         if (p.email) { out.fields.email = p.email; }
         if (p.phone) { out.fields.mobile = p.phone; }
         if (p.location) { out.fields.current_location = p.location; }
-        if (p.linkedin) { out.fields.linkedin_profile = p.linkedin; }
-        if (p.portfolio) { out.fields.portfolio_url = p.portfolio; }
+        if (p.linkedin) { out.fields.linkedin_profile = normUrl(p.linkedin); }
+        if (p.portfolio) { out.fields.portfolio_url = normUrl(p.portfolio); }
 
         // Professional — latest experience only; never guess CTC/notice/status.
         var exp = Array.isArray(structured.experience) ? structured.experience : [];

@@ -188,11 +188,22 @@ if (!function_exists('cpvia_apply_validate')) {
             $errors['current_location'] = 'Current location is required.';
         }
 
+        $normUrl = static function (string $v): string {
+            $v = trim($v);
+            if ($v === '') {
+                return '';
+            }
+            if (!preg_match('#^[a-z][a-z0-9+.\-]*://#i', $v)) {
+                $v = 'https://' . ltrim($v, '/');
+            }
+            return $v;
+        };
+
         $clean['linkedin_profile'] = $str('linkedin_profile', 255);
         if ($clean['linkedin_profile'] !== '') {
-            if (!filter_var($clean['linkedin_profile'], FILTER_VALIDATE_URL)
-                || !preg_match('#^https?://#i', $clean['linkedin_profile'])) {
-                $errors['linkedin_profile'] = 'Enter a valid URL starting with http(s):// or leave it blank.';
+            $clean['linkedin_profile'] = $normUrl($clean['linkedin_profile']);
+            if (!filter_var($clean['linkedin_profile'], FILTER_VALIDATE_URL)) {
+                $errors['linkedin_profile'] = 'Enter a valid URL or leave it blank.';
             }
         }
 
@@ -274,8 +285,8 @@ if (!function_exists('cpvia_apply_validate')) {
         // ---- Step 4: Portfolio (files validated separately) ----
         $clean['portfolio_url'] = $str('portfolio_url', 255);
         if ($clean['portfolio_url'] !== '') {
-            if (!filter_var($clean['portfolio_url'], FILTER_VALIDATE_URL)
-                || !preg_match('#^https?://#i', $clean['portfolio_url'])) {
+            $clean['portfolio_url'] = $normUrl($clean['portfolio_url']);
+            if (!filter_var($clean['portfolio_url'], FILTER_VALIDATE_URL)) {
                 $errors['portfolio_url'] = 'Enter a valid portfolio URL or leave it blank.';
             }
         }
