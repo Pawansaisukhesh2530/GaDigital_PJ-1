@@ -107,7 +107,15 @@
     border-radius: 999px;
     padding: 3px 10px;
 }
-.apply-ai-continue { margin-top: 12px; }
+.apply-ai-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 12px;
+}
+.apply-ai-continue { margin-top: 0; }
+.apply-ai-clear { margin-top: 0; }
 
 /* Subtle per-field "Filled from resume" badge */
 .apply-ai-filled {
@@ -123,5 +131,6 @@
 
 @media (max-width: 560px) {
     .apply-ai-box { padding: 13px; }
-    .apply-ai-continue { width: 100%; }
+    .apply-ai-actions { flex-direction: column; align-items: stretch; }
+    .apply-ai-continue, .apply-ai-clear { width: 100%; }
 }

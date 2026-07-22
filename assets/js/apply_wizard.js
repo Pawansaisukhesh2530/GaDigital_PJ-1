@@ -256,6 +256,24 @@
             if (selectedSkills.indexOf(id) === -1) { selectedSkills.push(id); commitSkills(); saveDraft(); }
             return true;
         },
+        /** Clear a field's value (used to undo an auto-fill). */
+        clearField: function (id) {
+            var e = el(id);
+            if (!e) { return false; }
+            e.value = '';
+            saveDraft();
+            return true;
+        },
+        /** Remove a selected skill chip by id (used to undo an auto-fill). */
+        deselectSkillById: function (id) {
+            id = Number(id);
+            var i = selectedSkills.indexOf(id);
+            if (i === -1) { return false; }
+            selectedSkills.splice(i, 1);
+            commitSkills();
+            saveDraft();
+            return true;
+        },
         goToStep: function (n) { show(n); },
         saveDraft: function () { saveDraft(); }
     };

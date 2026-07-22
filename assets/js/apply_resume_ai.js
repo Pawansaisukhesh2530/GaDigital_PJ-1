@@ -213,14 +213,20 @@
 
         // Skills: match against the recruitment master list; never create records.
         var master = W.listSkills();
-        var matched = [], unmatched = [];
+        var matched = [], matchedIds = [], unmatched = [];
         mapped.skillNames.forEach(function (name) {
             var id = matchSkillId(name, master);
-            if (id != null) { if (W.selectSkillById(id)) { matched.push(name); } }
-            else { unmatched.push(name); }
+            if (id != null) {
+                var alreadySelected = W.isSkillSelected(id);
+                if (W.selectSkillById(id)) {
+                    matched.push(name);
+                    // Only track skills WE added, so Clear won't remove pre-existing ones.
+                    if (!alreadySelected) { matchedIds.push(id); }
+                }
+            } else { unmatched.push(name); }
         });
 
-        return { filled: filled, retained: retained, matched: matched, unmatched: unmatched };
+        return { filled: filled, retained: retained, matched: matched, matchedIds: matchedIds, unmatched: unmatched };
     }
 
     /* ---------------------------------------------------- success rendering */
@@ -242,11 +248,37 @@
                 + '(not in our skills list \u2014 add manually if relevant):</span><div class="apply-ai-xchips">'
                 + chips + '</div></div>';
         }
-        html += '<button type="button" class="apply-btn apply-btn-primary apply-ai-continue" id="aiContinueBtn">'
-            + 'Continue to Personal Information</button>';
+        html += '<div class="apply-ai-actions">'
+            + '<button type="button" class="apply-btn apply-btn-primary apply-ai-continue" id="aiContinueBtn">'
+            + 'Continue to Personal Information</button>'
+            + '<button type="button" class="apply-btn apply-btn-ghost apply-ai-clear" id="aiClearBtn">'
+            + 'Clear auto-filled data</button>'
+            + '</div>';
         statusBox.innerHTML = html;
         var cont = document.getElementById('aiContinueBtn');
         if (cont) { cont.addEventListener('click', function () { W.goToStep(2); }); }
+        var clr = document.getElementById('aiClearBtn');
+        if (clr) { clr.addEventListener('click', function () { clearAutofill(summary); }); }
+    }
+
+    // Remove only what the AI filled: the auto-filled fields, the skill chips we
+    // added, and the "Filled from resume" badges. Candidate-entered data is left
+    // untouched (we only tracked fields/skills that were empty before analysis).
+    function clearAutofill(summary) {
+        (summary.filled || []).forEach(function (id) {
+            W.clearField(id);
+            removeFilledBadge(id);
+        });
+        (summary.matchedIds || []).forEach(function (id) { W.deselectSkillById(id); });
+        showInfo('Auto-filled data cleared. You can analyze again or fill the form manually.');
+    }
+
+    function removeFilledBadge(id) {
+        var elField = document.getElementById(id);
+        if (!elField) { return; }
+        var wrap = elField.closest('.apply-field');
+        var tag = wrap && wrap.querySelector('.apply-ai-filled');
+        if (tag) { tag.parentNode.removeChild(tag); }
     }
 
     /* --------------------------------------------------------- the request */
