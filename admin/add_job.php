@@ -51,7 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     min_experience, max_experience, minimum_qualification, degree, specialization,
                     salary_type, min_salary, max_salary, currency,
                     responsibilities, benefits, preferred_notice_period, gender_preference,
-                    minimum_age, maximum_age, updated_at
+                    minimum_age, maximum_age, updated_at,
+                    submission_mode, recipient_emails
                 ) VALUES (
                     :title, :department, :location, :employment_type, :description, :requirements, :status,
                     :job_code, :work_mode, :number_of_openings, :hiring_priority,
@@ -59,7 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     :min_experience, :max_experience, :minimum_qualification, :degree, :specialization,
                     :salary_type, :min_salary, :max_salary, :currency,
                     :responsibilities, :benefits, :preferred_notice_period, :gender_preference,
-                    :minimum_age, :maximum_age, :updated_at
+                    :minimum_age, :maximum_age, :updated_at,
+                    :submission_mode, :recipient_emails
                 )
             ");
             $stmt->execute(cpvia_job_param_map($values, $location, $status, date('Y-m-d H:i:s')));

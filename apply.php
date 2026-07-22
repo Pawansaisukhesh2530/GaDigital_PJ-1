@@ -2,9 +2,11 @@
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/apply_helpers.php';
+require_once __DIR__ . '/email_helper.php';
 
 $db_file = __DIR__ . '/admin/cpvia_database.sqlite';
 $uploads_dir = __DIR__ . '/uploads/resumes';
+$pending_dir = __DIR__ . '/uploads/pending';
 
 if (session_status() === PHP_SESSION_NONE) {
     $apply_sess_dir = __DIR__ . '/sessions';
@@ -56,9 +58,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Keep only skills that really exist in the master table.
         $clean['skills'] = array_values(array_intersect($clean['skills'], $skill_ids_valid));
 
+        // ---- Per-job Application Delivery behaviour ----
+        $mode = cpvia_apply_normalize_mode($job['submission_mode'] ?? 'BACKEND_ONLY');
+        $needs_email = in_array($mode, ['EMAIL_ONLY', 'BACKEND_AND_EMAIL'], true);
+        $needs_backend = in_array($mode, ['BACKEND_ONLY', 'BACKEND_AND_EMAIL'], true);
+
+        $recipients = [];
+        if (!$errors && $needs_email) {
+            $parsed = cpvia_parse_email_list($job['recipient_emails'] ?? '');
+            $recipients = $parsed['emails'];
+            if (empty($recipients)) {
+                // Misconfigured email-mode job — do not silently drop the application.
+                $errors['_global'] = 'This position is not accepting applications right now. Please try again later.';
+            }
+        }
+
         // Accidental rapid double-submit guard (same email + job within 60s).
+        // Only meaningful for the pure backend path; email modes stop at the
+        // review page, which is the natural de-duplication point.
         $duplicate = false;
-        if (!$errors) {
+        if (!$errors && $mode === 'BACKEND_ONLY') {
             try {
                 $dupStmt = $pdo->prepare(
                     "SELECT COUNT(*) FROM applications
@@ -83,9 +102,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['apply_csrf'] = bin2hex(random_bytes(32));
         } elseif (!$errors) {
             // Validation passed — now handle uploads (so we never orphan files
-            // for a form that had field errors).
+            // for a form that had field errors). EMAIL_ONLY keeps files in a
+            // temporary pending directory; all other modes use the durable
+            // resumes directory because the backend keeps a copy.
+            $target_dir = ($mode === 'EMAIL_ONLY') ? $pending_dir : $uploads_dir;
+            $rel_prefix = ($mode === 'EMAIL_ONLY') ? 'uploads/pending/' : 'uploads/resumes/';
+
             $uploaded_paths = [];
-            $resume = cpvia_apply_store_upload($_FILES['resume'] ?? [], $uploads_dir, 'resume', true);
+            $resume = cpvia_apply_store_upload($_FILES['resume'] ?? [], $target_dir, 'resume', true);
             if (!$resume['ok']) {
                 $errors['resume'] = $resume['error'];
             } elseif (!empty($resume['stored'])) {
@@ -94,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $cover = ['ok' => true, 'stored' => null];
             if (!$errors) {
-                $cover = cpvia_apply_store_upload($_FILES['cover_letter_file'] ?? [], $uploads_dir, 'cover', false);
+                $cover = cpvia_apply_store_upload($_FILES['cover_letter_file'] ?? [], $target_dir, 'cover', false);
                 if (!$cover['ok']) {
                     $errors['cover_letter_file'] = $cover['error'];
                 } elseif (!empty($cover['stored'])) {
@@ -108,7 +132,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (is_file($p)) { @unlink($p); }
                 }
             } else {
-                // ---- Atomic multi-table write ----
+                $app_id = null;
+
+                // ---- Backend store (BACKEND_ONLY and BACKEND_AND_EMAIL) ----
+                if ($needs_backend) {
                 try {
                     $pdo->beginTransaction();
                     $now = date('Y-m-d H:i:s');
@@ -196,15 +223,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     $pdo->commit();
-
-                    $success = true;
-                    $success_data = [
-                        'job_title' => $job['title'],
-                        'name' => $clean['full_name'],
-                        'ref' => 'CPVIA-APP-' . str_pad((string) $app_id, 5, '0', STR_PAD_LEFT),
-                        'duplicate' => false,
-                    ];
-                    $_SESSION['apply_csrf'] = bin2hex(random_bytes(32));
                 } catch (Throwable $e) {
                     if ($pdo->inTransaction()) {
                         $pdo->rollBack();
@@ -213,6 +231,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (is_file($p)) { @unlink($p); }
                     }
                     $errors['_global'] = 'We could not submit your application due to a server error. Please try again.';
+                    $app_id = null;
+                }
+                } // end if ($needs_backend)
+
+                // ---- Email review workflow (EMAIL_ONLY and BACKEND_AND_EMAIL) ----
+                if (!$errors && $needs_email) {
+                    try {
+                        $app_ref = $app_id
+                            ? 'CPVIA-APP-' . str_pad((string) $app_id, 5, '0', STR_PAD_LEFT)
+                            : 'CPVIA-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+                        $emailData = cpvia_apply_email_data($pdo, $clean, $job, [
+                            'application_ref' => $app_ref,
+                            'submission_date' => date('F j, Y'),
+                            'resume_name' => (string) ($resume['original'] ?? ''),
+                            'cover_name' => !empty($cover['stored']) ? (string) ($cover['original'] ?? '') : '',
+                        ]);
+                        $built = cpvia_build_application_email($pdo, $emailData);
+                        $token = cpvia_create_pending_email($pdo, [
+                            'job_id' => $job_id,
+                            'application_id' => $app_id,
+                            'mode' => $mode,
+                            'recipient_emails' => implode(', ', $recipients),
+                            'candidate_name' => $clean['full_name'],
+                            'candidate_email' => $clean['email'],
+                            'candidate_phone' => $clean['mobile'],
+                            'job_title' => $job['title'],
+                            'subject' => $built['subject'],
+                            'body' => $built['body'],
+                            'resume_path' => $rel_prefix . $resume['stored'],
+                            'resume_original' => $resume['original'],
+                            'cover_path' => !empty($cover['stored']) ? $rel_prefix . $cover['stored'] : null,
+                            'cover_original' => !empty($cover['stored']) ? $cover['original'] : null,
+                            'payload' => json_encode($emailData),
+                        ]);
+                        $_SESSION['apply_csrf'] = bin2hex(random_bytes(32));
+                        header('Location: review_email?token=' . urlencode($token));
+                        exit;
+                    } catch (Throwable $e) {
+                        if ($mode === 'EMAIL_ONLY') {
+                            // Nothing durable was saved — clean up temp files.
+                            foreach ($uploaded_paths as $p) {
+                                if (is_file($p)) { @unlink($p); }
+                            }
+                            $errors['_global'] = 'We could not start the email review step. Please try again.';
+                        } else {
+                            // BACKEND_AND_EMAIL: application is safely stored.
+                            $errors['_global'] = 'Your application was saved, but we could not open the email review step. Our team has still received it.';
+                        }
+                    }
+                }
+
+                // ---- Pure backend success (BACKEND_ONLY) ----
+                if (!$errors && !$needs_email && $needs_backend) {
+                    $success = true;
+                    $success_data = [
+                        'job_title' => $job['title'],
+                        'name' => $clean['full_name'],
+                        'ref' => 'CPVIA-APP-' . str_pad((string) $app_id, 5, '0', STR_PAD_LEFT),
+                        'duplicate' => false,
+                    ];
+                    $_SESSION['apply_csrf'] = bin2hex(random_bytes(32));
                 }
             }
         }

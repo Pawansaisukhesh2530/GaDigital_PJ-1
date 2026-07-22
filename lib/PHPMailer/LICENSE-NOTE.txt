@@ -1,0 +1,6 @@
+PHPMailer v6.9.3 — bundled core source files (PHPMailer.php, SMTP.php, Exception.php).
+Source: https://github.com/PHPMailer/PHPMailer
+License: GNU Lesser General Public License v2.1 (LGPL-2.1).
+These files are the unmodified upstream sources, vendored here because the
+project does not use Composer. Update by replacing the three files with a newer
+tagged release from the upstream repository.

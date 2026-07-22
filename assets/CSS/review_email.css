@@ -1,0 +1,206 @@
+/* =========================================================================
+   CPVIA — Email Review page styling
+   Reuses the neutral enterprise palette from apply_wizard.css. Brand colors
+   (orange CTA / violet accent) are used sparingly, for actions and focus only.
+   Loaded only on review_email.php.
+   ========================================================================= */
+
+.review-wrap {
+    --rv-blue: var(--primary-blue, #3D1A8A);
+    --rv-orange: var(--primary-orange, #FF5500);
+    --rv-heading: #111827;
+    --rv-text: #374151;
+    --rv-muted: #6B7280;
+    --rv-border: #E5E7EB;
+    --rv-hover: #F9FAFB;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 6rem 5% 3rem;
+    font-family: var(--font-sans, 'Montserrat', sans-serif);
+    color: var(--rv-text);
+}
+
+/* ---- Header ---- */
+.review-head { margin-bottom: 1.4rem; }
+.review-eyebrow {
+    display: inline-block;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--rv-orange);
+    margin-bottom: 0.4rem;
+}
+.review-head h1 { font-size: 1.7rem; margin: 0 0 0.5rem; color: var(--rv-heading); font-weight: 800; }
+.review-head p { margin: 0; color: var(--rv-muted); font-size: 0.95rem; line-height: 1.6; max-width: 640px; }
+
+/* ---- Alerts ---- */
+.review-alert-error {
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+    padding: 0.9rem 1.1rem;
+    border-radius: 12px;
+    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* ---- Card ---- */
+.review-card-panel {
+    background: #fff;
+    border: 1px solid var(--rv-border);
+    border-radius: 16px;
+    padding: 1.6rem;
+    box-shadow: 0 8px 28px rgba(17, 24, 39, 0.06);
+}
+.review-row-field { margin-bottom: 1.3rem; }
+.review-row-field:last-child { margin-bottom: 0; }
+.review-row-field > label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    color: var(--rv-heading);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+.review-lock {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--rv-muted);
+    background: #F3F4F6;
+    border-radius: 20px;
+    padding: 0.2rem 0.6rem;
+}
+
+.review-form input[type=text],
+.review-form textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1.5px solid var(--rv-border);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--rv-text);
+    background: #fff;
+    box-sizing: border-box;
+}
+.review-form textarea { resize: vertical; line-height: 1.6; }
+/* Monospace so the aligned application-summary sections line up cleanly. */
+.review-form textarea#body {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+.review-form input[type=text]:focus,
+.review-form textarea:focus {
+    outline: none;
+    border-color: var(--rv-orange);
+    box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.12);
+}
+.review-hint { display: block; margin-top: 0.4rem; color: var(--rv-muted); font-size: 0.78rem; }
+
+/* ---- Read-only values ---- */
+.review-readonly-value {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background: var(--rv-hover);
+    border: 1px dashed var(--rv-border);
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+}
+.review-pill {
+    background: #EEF2FF;
+    color: var(--rv-blue);
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+}
+.review-muted { color: var(--rv-muted); font-size: 0.85rem; }
+.review-readonly-line {
+    background: var(--rv-hover);
+    border: 1px dashed var(--rv-border);
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    color: var(--rv-text);
+    font-weight: 600;
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+.review-row-two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.3rem; }
+.review-row-two .review-row-field { margin-bottom: 0; }
+@media (max-width: 640px) { .review-row-two { grid-template-columns: 1fr; } }
+
+/* ---- Attachments ---- */
+.review-attachments { display: flex; flex-direction: column; gap: 0.6rem; }
+.review-attachment {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: var(--rv-hover);
+    border: 1px solid var(--rv-border);
+    border-radius: 12px;
+    padding: 0.7rem 0.95rem;
+    color: var(--rv-text);
+}
+.review-attachment svg { color: var(--rv-orange); flex-shrink: 0; }
+.review-attachment-label { font-weight: 700; color: var(--rv-heading); font-size: 0.85rem; }
+.review-attachment-name { color: var(--rv-muted); font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.review-attachment-missing { border-color: #FCA5A5; background: #FEF2F2; }
+.review-attachment-warn { margin-left: auto; color: #991B1B; font-size: 0.72rem; font-weight: 700; }
+
+/* ---- Checkbox ---- */
+.review-check {
+    display: flex !important;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600 !important;
+    color: var(--rv-text) !important;
+    font-size: 0.9rem !important;
+    cursor: pointer;
+    margin-bottom: 0 !important;
+}
+.review-check input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--rv-orange); flex-shrink: 0; }
+
+/* ---- Nav ---- */
+.review-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.6rem;
+}
+
+/* ---- State cards (invalid / expired / success) ---- */
+.review-state-card {
+    background: #fff;
+    border: 1px solid var(--rv-border);
+    border-radius: 18px;
+    padding: 3rem 2rem;
+    text-align: center;
+    max-width: 560px;
+    margin: 2rem auto;
+    box-shadow: 0 10px 34px rgba(17, 24, 39, 0.06);
+}
+.review-state-icon {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.3rem;
+    background: #ECFDF5;
+    color: #059669;
+}
+.review-state-icon.review-icon-warn { background: #FFF7ED; color: var(--rv-orange); }
+.review-state-card h1 { font-size: 1.5rem; color: var(--rv-heading); margin: 0 0 0.6rem; font-weight: 800; }
+.review-state-card p { color: var(--rv-muted); line-height: 1.6; margin: 0 auto 1.6rem; max-width: 440px; }
+.review-state-actions { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+    .review-nav { flex-direction: column-reverse; }
+    .review-nav .apply-btn { width: 100%; text-align: center; }
+}
