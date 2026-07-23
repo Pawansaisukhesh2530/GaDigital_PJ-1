@@ -436,7 +436,21 @@ if (!function_exists('cpvia_apply_email_data')) {
 
         $summary = cpvia_apply_build_summary($structured);
 
-        // Flat placeholder map (used by the subject/body templates).
+        // Split the portfolio URL into GitHub vs generic portfolio for display.
+        $portfolioUrl = trim((string) $structured['portfolio']);
+        $github = '';
+        $portfolio = '';
+        if ($portfolioUrl !== '') {
+            if (stripos($portfolioUrl, 'github.com') !== false) {
+                $github = $portfolioUrl;
+            } else {
+                $portfolio = $portfolioUrl;
+            }
+        }
+
+        // Flat placeholder map (used by the subject/body templates) PLUS
+        // structured fields (used by the HTML renderer). Additive only — the
+        // plain-text workflow and existing placeholders are unchanged.
         return [
             'application_id'      => $structured['application_ref'],
             'submission_date'     => $structured['submission_date'],
@@ -452,6 +466,21 @@ if (!function_exists('cpvia_apply_email_data')) {
             'current_company'     => $structured['current_company'],
             'current_designation' => $structured['current_designation'],
             'application_summary' => $summary,
+            // --- Structured extras for the HTML email (not used by text templates) ---
+            'notice_period'       => (string) ($clean['notice_period'] ?? ''),
+            'qualification'       => $structured['qualification'],
+            'specialization'      => $structured['specialization'],
+            'university_college'  => $structured['university_college'],
+            'graduation_year'     => $structured['graduation_year'],
+            'skills'              => $structured['skills'],      // array<string>
+            'languages'           => $structured['languages'],  // array<string>
+            'linkedin'            => $structured['linkedin'],
+            'github'              => $github,
+            'portfolio'           => $portfolio,
+            'why_interested'      => $structured['why_interested'],
+            'why_cpvia'           => $structured['why_cpvia'],
+            'resume_name'         => $structured['resume_name'],
+            'cover_name'          => $structured['cover_name'],
         ];
     }
 }

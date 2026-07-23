@@ -89,12 +89,6 @@
     box-sizing: border-box;
 }
 .review-form textarea { resize: vertical; line-height: 1.6; }
-/* Monospace so the aligned application-summary sections line up cleanly. */
-.review-form textarea#body {
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 0.82rem;
-    line-height: 1.5;
-}
 .review-form input[type=text]:focus,
 .review-form textarea:focus {
     outline: none;
@@ -166,6 +160,49 @@
     margin-bottom: 0 !important;
 }
 .review-check input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--rv-orange); flex-shrink: 0; }
+
+/* ---- Buttons ----
+   apply_wizard.css scopes its --ap-* color variables to .apply-wrap, so the
+   shared .apply-btn-* colors do not resolve inside .review-wrap. Define them
+   explicitly here so review-page buttons are always styled correctly. */
+.review-wrap .apply-btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.9rem 2rem;
+    border-radius: 30px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: 0.25s;
+    line-height: 1;
+}
+.review-wrap .apply-btn-primary {
+    background: var(--rv-orange);
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(255, 85, 0, 0.25);
+}
+.review-wrap .apply-btn-primary:hover {
+    background: #e04a00;
+    transform: translateY(-2px);
+}
+.review-wrap .apply-btn-primary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}
+.review-wrap .apply-btn-ghost {
+    background: #fff;
+    color: var(--rv-text);
+    border: 1px solid #D1D5DB;
+}
+.review-wrap .apply-btn-ghost:hover {
+    background: var(--rv-hover);
+}
 
 /* ---- Nav ---- */
 .review-nav {

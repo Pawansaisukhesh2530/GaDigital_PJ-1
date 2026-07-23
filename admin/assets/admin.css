@@ -1468,8 +1468,49 @@ table.admin-table {
 .delivery-option-desc { color: #6B7280; font-size: 0.8rem; line-height: 1.45; }
 
 /* ---- Settings page ---- */
-.settings-form { max-width: 900px; }
-.settings-form .form-section-card { margin-bottom: 1.4rem; }
+/* Wider, balanced layout. Scoped to .settings-form so the shared wizard grids
+   are never affected. No markup/logic changes required. */
+.settings-form { max-width: 1320px; width: 100%; }
+.settings-form .form-section-card {
+    margin-bottom: 1.6rem;
+    padding: 26px 30px;
+    box-shadow: 0 1px 3px rgba(17, 24, 39, 0.04);
+}
+
+/* Two-column field grid on desktop/tablet. The SMTP "From Email" (last field
+   of the 3-field row) spans the full width for a clean, balanced layout. */
+.settings-form .wiz-grid-2,
+.settings-form .wiz-grid-3 { grid-template-columns: 1fr 1fr; gap: 1.25rem 1.75rem; }
+.settings-form .wiz-grid-3 > .form-group:last-child { grid-column: 1 / -1; }
+
+/* Email Template: full-width fields, larger editing area. */
+.settings-form #email_subject_template,
+.settings-form #email_body_template,
+.settings-form #company_name { width: 100%; }
+.settings-form #email_body_template {
+    min-height: 340px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+/* Test email row: keep the action button a natural size, aligned to the field. */
+.settings-form .settings-test-btn-wrap { align-items: flex-end; }
+.settings-form .settings-test-btn-wrap .btn-outline-pill { width: auto; min-width: 200px; }
+
+/* Tablet: keep two columns but tighten the gap. */
+@media (max-width: 1024px) {
+    .settings-form .form-section-card { padding: 22px 24px; }
+    .settings-form .wiz-grid-2,
+    .settings-form .wiz-grid-3 { gap: 1.1rem 1.25rem; }
+}
+
+/* Mobile: stack everything into a single column. */
+@media (max-width: 680px) {
+    .settings-form .wiz-grid-2,
+    .settings-form .wiz-grid-3 { grid-template-columns: 1fr; }
+    .settings-form .wiz-grid-3 > .form-group:last-child { grid-column: auto; }
+    .settings-form .settings-test-btn-wrap .btn-outline-pill { width: 100%; }
+}
 .settings-scope-pill {
     display: inline-block;
     font-size: 0.62rem;

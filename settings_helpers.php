@@ -63,15 +63,16 @@ if (!function_exists('cpvia_settings_defaults')) {
 if (!function_exists('cpvia_default_email_body_template')) {
     function cpvia_default_email_body_template(): string
     {
+        // This is the editable "Candidate Message" shown on the Review page.
+        // The full profile (candidate info, skills, education, links, etc.) is
+        // rendered automatically as structured sections in the HTML email, so
+        // this message stays short and personal.
         return "Dear Hiring Team,\n\n"
-            . "Please find below a professional summary of the application submitted for the "
-            . "{job_title} position at {company_name}. The candidate's full resume is attached "
-            . "for your detailed review.\n\n"
-            . "{application_summary}\n\n"
+            . "I am writing to submit my application for the {job_title} position at {company_name}. "
+            . "A summary of my profile is included below, and my resume is attached for your review.\n\n"
+            . "Thank you for your consideration.\n\n"
             . "Kind regards,\n"
-            . "{candidate_name}\n"
-            . "{candidate_email}\n"
-            . "{candidate_phone}";
+            . "{candidate_name}";
     }
 }
 
