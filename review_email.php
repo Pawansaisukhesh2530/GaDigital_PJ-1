@@ -130,15 +130,29 @@ if (!$pending) {
 
                 $cc = $send_copy ? (string) ($pending['candidate_email'] ?? '') : '';
 
+                // Build the modern HTML email from the structured payload, using
+                // the candidate's edited message as the "Candidate Message".
+                $emailData = json_decode((string) ($pending['payload'] ?? '{}'), true);
+                if (!is_array($emailData)) { $emailData = []; }
+                $htmlBody = cpvia_build_application_email_html($emailData, $body);
+
+                // Plain-text AltBody: the candidate's message + the full text
+                // summary, so non-HTML clients still receive everything.
+                $altBody = $body;
+                if (!empty($emailData['application_summary'])) {
+                    $altBody .= "\n\n" . $emailData['application_summary'];
+                }
+
                 $result = cpvia_send_application_email(
                     $pdo,
                     $recipients,
                     $subject,
-                    $body,
+                    $altBody,
                     $attachments,
                     (string) ($pending['candidate_email'] ?? ''),
                     (string) ($pending['candidate_name'] ?? ''),
-                    $cc
+                    $cc,
+                    $htmlBody
                 );
 
                 if ($result['ok']) {
