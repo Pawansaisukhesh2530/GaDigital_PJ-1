@@ -134,8 +134,8 @@ ollama serve
 .venv\Scripts\python.exe -m uvicorn api.app:app --host 127.0.0.1 --port 8000
 
 # Terminal 3 — Frontend (PHP), from the project root (cpvia/)
-$env:RESUME_AI_BASE_URL='http://127.0.0.1:8000'
-php -S 127.0.0.1:8090 router.php
+$env:RESUME_AI_BASE_URL='http://127.0.0.1:8000'                                    
+>> C:\xampp\php\php.exe -d display_errors=0 -d display_startup_errors=0 -d log_errors=1 -S 127.0.0.1:8090 router.php  
 ```
 
 Then open: **http://127.0.0.1:8090/**
