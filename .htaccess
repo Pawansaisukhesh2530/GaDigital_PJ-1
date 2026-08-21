@@ -1,5 +1,8 @@
 RewriteEngine On
 
+# Block /admin paths - return 404 (admin is accessed via custom slug)
+RewriteRule ^admin(/.*)?$ - [R=404,L]
+
 # Redirect index.php to /
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.php\ HTTP/
 RewriteRule ^index\.php$ / [R=301,L]
@@ -12,3 +15,9 @@ RewriteRule ^/?(.*)\.php$ /$1 [L,R=301]
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.php -f
 RewriteRule ^(.*)$ $1.php [L]
+
+# Front-controller fallback: route non-file, non-directory requests to router.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php !-f
+RewriteRule ^(.*)$ router.php [L]

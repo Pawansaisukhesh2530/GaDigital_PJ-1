@@ -78,6 +78,10 @@ include __DIR__ . '/partials/layout_top.php';
         <div class="alert alert-success">Job deleted successfully.</div>
     <?php elseif ($flash_success === 'draft'): ?>
         <div class="alert alert-success">Draft saved successfully.</div>
+    <?php elseif ($flash_success === 'closed'): ?>
+        <div class="alert alert-success">Job closed/archived successfully.</div>
+    <?php elseif ($flash_success === 'reopened'): ?>
+        <div class="alert alert-success">Job reopened successfully.</div>
     <?php endif; ?>
 
     <?php if (isset($error)): ?>
@@ -146,10 +150,30 @@ include __DIR__ . '/partials/layout_top.php';
                         <td class="date-text"><?php echo htmlspecialchars(date('M d, Y', strtotime($job['created_at']))); ?></td>
                         <td>
                             <div class="action-group">
-                                <a href="edit_job.php?id=<?php echo htmlspecialchars($job['id']); ?>" class="icon-btn icon-btn-edit" title="Edit Job" aria-label="Edit Job">
+                                <?php if ($job['status'] === 'Closed'): ?>
+                                    <!-- Reopen: primary action for Closed jobs -->
+                                    <form action="job_status.php" method="POST" class="inline-action-form">
+                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($job['id']); ?>">
+                                        <input type="hidden" name="action" value="reopen">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(cpvia_csrf_token()); ?>">
+                                        <button type="submit" class="btn-reopen-pill" title="Reopen Job" aria-label="Reopen Job">Reopen</button>
+                                    </form>
+                                <?php else: ?>
+                                    <!-- Close/Archive: primary action for Active/Draft jobs -->
+                                    <form action="job_status.php" method="POST" class="inline-action-form">
+                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($job['id']); ?>">
+                                        <input type="hidden" name="action" value="close">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(cpvia_csrf_token()); ?>">
+                                        <button type="submit" class="btn-archive-pill" title="Close/Archive Job" aria-label="Close/Archive Job">Close</button>
+                                    </form>
+                                <?php endif; ?>
+
+                                <a href="edit_job_single.php?id=<?php echo htmlspecialchars($job['id']); ?>&amp;section=1" class="icon-btn icon-btn-edit" title="Edit Job" aria-label="Edit Job">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                 </a>
-                                <form action="delete_job.php" method="POST" class="icon-btn-delete-form" onsubmit="return confirm('Are you sure you want to delete this job?');">
+
+                                <!-- Delete: secondary action for all statuses -->
+                                <form action="delete_job.php" method="POST" class="icon-btn-delete-form">
                                     <input type="hidden" name="id" value="<?php echo htmlspecialchars($job['id']); ?>">
                                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(cpvia_csrf_token()); ?>">
                                     <button type="submit" class="icon-btn icon-btn-delete" title="Delete Job" aria-label="Delete Job">

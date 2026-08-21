@@ -1,17 +1,16 @@
 /* =========================================================================
-   CPVIA Job Posting Wizard
+   CPVIA Job Posting Wizard — 4-Step Version
    Self-contained: step navigation, inline validation, skill chips,
    lightweight rich-text editor, and review rendering.
-   Reusable by Add Job (and Edit Job later) — reads initial state from
+   Reusable by Add Job (and Edit Job) — reads initial state from
    window.CPVIA_SKILLS / CPVIA_REQUIRED / CPVIA_PREFERRED.
    ========================================================================= */
 (function () {
     'use strict';
 
-    var TOTAL = 8;
-    var STEP_NAMES = ['Basic Job Details', 'Location', 'Experience & Education',
-        'Salary & Skills', 'Job Description', 'Responsibilities & Requirements',
-        'Benefits & Candidate Preferences', 'Review & Publish'];
+    var TOTAL = 4;
+    var STEP_NAMES = ['Job Overview', 'Requirements & Qualifications',
+        'Job Description', 'Review & Publish'];
 
     var wizard = document.getElementById('jobWizard');
     if (!wizard) { return; }
@@ -246,32 +245,31 @@
         function fail(field, msg) { setError(panel, field, msg); ok = false; }
 
         if (n === 1) {
+            // Job Overview: Basic Details + Location
             if (!val('title')) { fail('title', 'Job title is required.'); }
             if (!val('department')) { fail('department', 'Department is required.'); }
             if (!val('employment_type')) { fail('employment_type', 'Select an employment type.'); }
             var op = val('number_of_openings');
             if (op !== '' && (parseInt(op, 10) < 1 || isNaN(parseInt(op, 10)))) { fail('number_of_openings', 'Must be at least 1.'); }
-        } else if (n === 2) {
             if (!val('city')) { fail('city', 'City is required.'); }
-        } else if (n === 3) {
+        } else if (n === 2) {
+            // Requirements & Qualifications: Experience + Salary
             if (!numOk(val('min_experience'))) { fail('min_experience', 'Enter a valid number.'); }
             if (!numOk(val('max_experience'))) { fail('max_experience', 'Enter a valid number.'); }
             if (val('min_experience') && val('max_experience') &&
                 parseFloat(val('min_experience')) > parseFloat(val('max_experience'))) {
                 fail('max_experience', 'Max must be greater than or equal to min.');
             }
-        } else if (n === 4) {
             if (!numOk(val('min_salary'))) { fail('min_salary', 'Enter a valid amount.'); }
             if (!numOk(val('max_salary'))) { fail('max_salary', 'Enter a valid amount.'); }
             if (val('min_salary') && val('max_salary') &&
                 parseFloat(val('min_salary')) > parseFloat(val('max_salary'))) {
                 fail('max_salary', 'Max must be greater than or equal to min.');
             }
-        } else if (n === 5) {
+        } else if (n === 3) {
+            // Job Description: Description + Requirements + Candidate Preferences + Delivery
             if (!stripTags(document.getElementById('descriptionInput').value)) { fail('description', 'A description is required to publish.'); }
-        } else if (n === 6) {
             if (!stripTags(document.getElementById('requirementsInput').value)) { fail('requirements', 'Requirements are required to publish.'); }
-        } else if (n === 7) {
             if (val('minimum_age') && (parseInt(val('minimum_age'), 10) < 16)) { fail('minimum_age', 'Minimum age looks too low.'); }
             if (val('minimum_age') && val('maximum_age') &&
                 parseInt(val('minimum_age'), 10) > parseInt(val('maximum_age'), 10)) {
@@ -403,35 +401,35 @@
             ['Employment Type', selText('employment_type')], ['Work Mode', selText('work_mode')],
             ['Openings', val('number_of_openings')], ['Priority', selText('hiring_priority')]
         ]));
-        html += card('Location', 2, rowsHtml([
+        html += card('Location', 1, rowsHtml([
             ['Country', val('country')], ['State', val('state')], ['City', val('city')],
             ['Office', val('office_location')], ['Remote Available', remote]
         ]));
-        html += card('Experience & Education', 3, rowsHtml([
+        html += card('Experience & Education', 2, rowsHtml([
             ['Min Experience', val('min_experience')], ['Max Experience', val('max_experience')],
             ['Min Qualification', selText('minimum_qualification')], ['Degree', val('degree')],
             ['Specialization', val('specialization')]
         ]));
-        html += card('Salary', 4, rowsHtml([
+        html += card('Salary', 2, rowsHtml([
             ['Salary Type', selText('salary_type')], ['Currency', selText('currency')],
             ['Min Salary', val('min_salary')], ['Max Salary', val('max_salary')]
         ]));
-        html += card('Skills', 4, rowsHtml([
+        html += card('Skills', 2, rowsHtml([
             ['Required', skillNames('requiredSkillsInput'), true],
             ['Preferred', skillNames('preferredSkillsInput'), true]
         ]));
-        html += card('Description', 5, richOrDash('descriptionInput'), true);
-        html += card('Responsibilities', 6, richOrDash('responsibilitiesInput'), true);
-        html += card('Requirements', 6, richOrDash('requirementsInput'), true);
-        html += card('Benefits', 7, richOrDash('benefitsInput'), true);
-        html += card('Candidate Preferences', 7, rowsHtml([
+        html += card('Description', 3, richOrDash('descriptionInput'), true);
+        html += card('Responsibilities', 3, richOrDash('responsibilitiesInput'), true);
+        html += card('Requirements', 3, richOrDash('requirementsInput'), true);
+        html += card('Benefits', 3, richOrDash('benefitsInput'), true);
+        html += card('Candidate Preferences', 3, rowsHtml([
             ['Notice Period', val('preferred_notice_period')], ['Gender Preference', selText('gender_preference')],
             ['Min Age', val('minimum_age')], ['Max Age', val('maximum_age')]
         ]));
         var dMode = selectedMode();
         var deliveryRows = [['Receive Via', modeLabel(dMode)]];
         if (modeNeedsEmail(dMode)) { deliveryRows.push(['Recipient Email(s)', val('recipient_emails') || '—']); }
-        html += card('Application Delivery', 7, rowsHtml(deliveryRows));
+        html += card('Application Delivery', 3, rowsHtml(deliveryRows));
 
         grid.innerHTML = html;
         grid.querySelectorAll('.review-edit').forEach(function (b) {
@@ -443,7 +441,7 @@
     function submitWith(action) {
         syncEditors();
         if (action === 'publish') {
-            for (var s = 1; s <= 7; s++) {
+            for (var s = 1; s <= 3; s++) {
                 if (!validateStep(s, true)) { showStep(s); return; }
             }
         } else {

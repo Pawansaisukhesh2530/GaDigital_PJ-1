@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared 8-Step Job Wizard markup — used by BOTH Add Job and Edit Job.
+ * Shared 4-Step Job Wizard markup — used by BOTH Add Job and Edit Job.
  *
  * Expected variables (set by the including page):
  *   $values                array   field values (defaults or prefilled)
@@ -52,15 +52,15 @@ $wizard_context = $wizard_context ?? null;
     <!-- Progress indicator -->
     <div class="wizard-progress-card">
         <div class="wizard-progress-head">
-            <span class="wizard-step-count">Step <span id="wizStepNum">1</span> of 8</span>
-            <span class="wizard-step-name" id="wizStepName">Basic Job Details</span>
+            <span class="wizard-step-count">Step <span id="wizStepNum">1</span> of 4</span>
+            <span class="wizard-step-name" id="wizStepName">Job Overview</span>
         </div>
         <div class="wizard-progress-track">
             <div class="wizard-progress-fill" id="wizProgressFill"></div>
         </div>
         <ol class="wizard-steps" id="wizardSteps">
             <?php
-            $step_labels = ['Basic Details', 'Location', 'Experience', 'Salary', 'Description', 'Responsibilities', 'Benefits', 'Review'];
+            $step_labels = ['Job Overview', 'Requirements', 'Description', 'Review & Publish'];
             foreach ($step_labels as $i => $label):
             ?>
             <li class="wizard-step-item<?php echo $i === 0 ? ' is-active' : ''; ?>" data-step="<?php echo $i + 1; ?>">
@@ -84,10 +84,12 @@ $wizard_context = $wizard_context ?? null;
         <input type="hidden" name="requirements" id="requirementsInput">
         <input type="hidden" name="benefits" id="benefitsInput">
 
-        <!-- ============ STEP 1: Basic Job Details ============ -->
+        <!-- ============ STEP 1: Job Overview (Basic Details + Location) ============ -->
         <section class="wizard-panel form-section-card is-active" data-panel="1">
-            <h3>Basic Job Details</h3>
+            <h3>Job Overview</h3>
             <p class="form-section-sub">Core information candidates see first.</p>
+
+            <div class="wizard-subhead">Basic Details</div>
 
             <div class="form-group">
                 <label for="title">Job Title <span class="req">*</span></label>
@@ -147,12 +149,8 @@ $wizard_context = $wizard_context ?? null;
                     <small class="field-hint" id="hint-priority">Signals urgency internally.</small>
                 </div>
             </div>
-        </section>
 
-        <!-- ============ STEP 2: Location ============ -->
-        <section class="wizard-panel form-section-card" data-panel="2">
-            <h3>Location</h3>
-            <p class="form-section-sub">Where this role is based.</p>
+            <div class="wizard-subhead">Location</div>
 
             <div class="wiz-grid-3">
                 <div class="form-group">
@@ -191,10 +189,10 @@ $wizard_context = $wizard_context ?? null;
             </div>
         </section>
 
-        <!-- ============ STEP 3: Experience & Education ============ -->
-        <section class="wizard-panel form-section-card" data-panel="3">
-            <h3>Experience &amp; Education</h3>
-            <p class="form-section-sub">Eligibility expectations for applicants.</p>
+        <!-- ============ STEP 2: Requirements & Qualifications (Experience + Education + Salary + Skills) ============ -->
+        <section class="wizard-panel form-section-card" data-panel="2">
+            <h3>Requirements &amp; Qualifications</h3>
+            <p class="form-section-sub">Eligibility expectations, compensation, and required expertise.</p>
 
             <div class="wizard-subhead">Experience</div>
             <div class="wiz-grid-2">
@@ -235,12 +233,6 @@ $wizard_context = $wizard_context ?? null;
                     <small class="field-hint" id="hint-spec">Field of study, if relevant.</small>
                 </div>
             </div>
-        </section>
-
-        <!-- ============ STEP 4: Salary & Skills ============ -->
-        <section class="wizard-panel form-section-card" data-panel="4">
-            <h3>Salary &amp; Skills</h3>
-            <p class="form-section-sub">Compensation range and required expertise.</p>
 
             <div class="wizard-subhead">Salary</div>
             <div class="wiz-grid-4">
@@ -299,10 +291,10 @@ $wizard_context = $wizard_context ?? null;
             </div>
         </section>
 
-        <!-- ============ STEP 5: Job Description ============ -->
-        <section class="wizard-panel form-section-card" data-panel="5">
+        <!-- ============ STEP 3: Job Description (Description + Responsibilities + Requirements + Benefits + Candidate Preferences + Delivery) ============ -->
+        <section class="wizard-panel form-section-card" data-panel="3">
             <h3>Job Description</h3>
-            <p class="form-section-sub">Describe the role, team, and impact. <span class="req">*</span> required to publish.</p>
+            <p class="form-section-sub">Describe the role, responsibilities, and perks.</p>
 
             <div class="form-group">
                 <label id="lbl-description">Description <span class="req">*</span></label>
@@ -313,12 +305,6 @@ $wizard_context = $wizard_context ?? null;
                 <small class="field-hint">Use bold, italic, lists and links to keep it scannable.</small>
                 <small class="field-error" data-error-for="description"></small>
             </div>
-        </section>
-
-        <!-- ============ STEP 6: Responsibilities & Requirements ============ -->
-        <section class="wizard-panel form-section-card" data-panel="6">
-            <h3>Responsibilities &amp; Requirements</h3>
-            <p class="form-section-sub">What they will do and what they must bring.</p>
 
             <div class="form-group">
                 <label id="lbl-responsibilities">Responsibilities</label>
@@ -338,12 +324,6 @@ $wizard_context = $wizard_context ?? null;
                 <small class="field-hint">Qualifications, skills and experience needed. Required to publish.</small>
                 <small class="field-error" data-error-for="requirements"></small>
             </div>
-        </section>
-
-        <!-- ============ STEP 7: Benefits & Candidate Preferences ============ -->
-        <section class="wizard-panel form-section-card" data-panel="7">
-            <h3>Benefits &amp; Candidate Preferences</h3>
-            <p class="form-section-sub">Perks and any candidate preferences.</p>
 
             <div class="form-group">
                 <label id="lbl-benefits">Benefits</label>
@@ -428,8 +408,8 @@ $wizard_context = $wizard_context ?? null;
             </div>
         </section>
 
-        <!-- ============ STEP 8: Review ============ -->
-        <section class="wizard-panel form-section-card" data-panel="8">
+        <!-- ============ STEP 4: Review & Publish ============ -->
+        <section class="wizard-panel form-section-card" data-panel="4">
             <h3>Review &amp; <?php echo $wizard_is_edit ? 'Update' : 'Publish'; ?></h3>
             <p class="form-section-sub"><?php echo $wizard_is_edit ? 'Check your changes below, then update the job.' : 'Check everything below, then save a draft or publish.'; ?></p>
             <div class="review-grid" id="reviewGrid"><!-- populated by JS --></div>

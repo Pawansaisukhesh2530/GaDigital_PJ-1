@@ -34,6 +34,21 @@ if (isset($_POST['job_id'])) {
 }
 
 $job = cpvia_apply_fetch_job($pdo, $job_id);
+
+// Block applications to closed jobs — redirect to job detail page (Req 4.4, 4.5)
+if (!$job && $job_id > 0) {
+    try {
+        $closedStmt = $pdo->prepare("SELECT id FROM jobs WHERE id = ? AND status = 'Closed'");
+        $closedStmt->execute([$job_id]);
+        if ($closedStmt->fetch()) {
+            header('Location: job_detail.php?id=' . (int) $job_id);
+            exit;
+        }
+    } catch (Throwable $e) {
+        // Fall through to existing "Position Not Available" handling
+    }
+}
+
 $all_skills = cpvia_apply_fetch_skills($pdo);
 $skill_ids_valid = array_map(static fn($s) => $s['id'], $all_skills);
 
