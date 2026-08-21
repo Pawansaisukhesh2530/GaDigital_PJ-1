@@ -36,3 +36,31 @@ if (!function_exists('cpvia_ensure_admins_table')) {
         )");
     }
 }
+
+/**
+ * Run all idempotent database migrations.
+ *
+ * Each migration file in the migrations/ directory defines a single function
+ * that checks whether its change has already been applied before executing.
+ * This function can be called safely on every application startup.
+ *
+ * @param PDO $pdo  Active SQLite connection
+ * @return void
+ */
+if (!function_exists('cpvia_run_migrations')) {
+    function cpvia_run_migrations(PDO $pdo): void
+    {
+        $migrationsDir = __DIR__ . '/migrations';
+
+        if (!is_dir($migrationsDir)) {
+            return;
+        }
+
+        // 001_add_closed_at.php
+        $file = $migrationsDir . '/001_add_closed_at.php';
+        if (file_exists($file)) {
+            require_once $file;
+            cpvia_migration_001_add_closed_at($pdo);
+        }
+    }
+}

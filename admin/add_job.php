@@ -1,6 +1,6 @@
 <?php
 /**
- * Add Job — 8-Step Job Posting Wizard
+ * Add Job — 4-Step Job Posting Wizard
  * -----------------------------------------------------------------------------
  * Uses the shared wizard partial (partials/job_wizard_form.php), shared helpers
  * (job_helpers.php), CSS and JS, so Add Job and Edit Job stay consistent.

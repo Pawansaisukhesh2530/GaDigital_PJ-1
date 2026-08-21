@@ -51,6 +51,9 @@ if (!function_exists('cpvia_settings_defaults')) {
             // --- Configurable email template (placeholders documented below) ---
             'email_subject_template' => 'Application for {job_title} - {candidate_name}',
             'email_body_template'    => cpvia_default_email_body_template(),
+
+            // --- Careers page introductory summary (40–120 words) ---
+            'careers_intro_summary'  => 'At CPVIA, we are committed to advancing clinical research through innovation, collaboration, and integrity. Our team of biostatisticians, programmers, and medical writers works at the forefront of pharmaceutical development, delivering high-quality solutions that improve patient outcomes worldwide. We foster a supportive environment where professional growth is encouraged, diverse perspectives are valued, and every team member contributes to meaningful work. Whether you are an experienced specialist or early in your career, CPVIA offers opportunities to develop your expertise while making a real difference in global healthcare.',
         ];
     }
 }
@@ -272,5 +275,118 @@ if (!function_exists('cpvia_render_template')) {
             $key = $m[1];
             return array_key_exists($key, $data) ? (string) $data[$key] : '';
         }, $template);
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Admin URL Slug — validation & fallback
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+/** Hardcoded fallback slug used when the configured value is missing or invalid. */
+if (!defined('CPVIA_FALLBACK_ADMIN_SLUG')) {
+    define('CPVIA_FALLBACK_ADMIN_SLUG', 'cpvia-secure-panel1');
+}
+
+/**
+ * Validate the careers page introductory summary.
+ *
+ * Rules:
+ *   - HTML tags are stripped before counting words
+ *   - Word count must be between 40 and 120 inclusive
+ *
+ * @param string $text The summary text to validate
+ * @return string Error message if invalid, or empty string if valid
+ */
+if (!function_exists('cpvia_validate_intro_summary')) {
+    function cpvia_validate_intro_summary(string $text): string
+    {
+        $plain = strip_tags($text);
+        $word_count = str_word_count($plain);
+
+        if ($word_count < 40) {
+            return 'The introductory summary must contain at least 40 words.';
+        }
+        if ($word_count > 120) {
+            return 'The introductory summary must not exceed 120 words.';
+        }
+
+        return '';
+    }
+}
+
+/**
+ * Fetch distinct skill names associated with Active job postings.
+ *
+ * Queries the job_skills table joined with skills where the linked job
+ * has status = 'Active'. Returns a flat array of unique skill name strings,
+ * sorted alphabetically.
+ *
+ * @param PDO $pdo Active SQLite connection
+ * @return string[] Skill names from active postings
+ */
+if (!function_exists('cpvia_active_job_skills')) {
+    function cpvia_active_job_skills(PDO $pdo): array
+    {
+        try {
+            $stmt = $pdo->prepare("
+                SELECT DISTINCT s.name
+                FROM job_skills js
+                INNER JOIN skills s ON s.id = js.skill_id
+                INNER JOIN jobs j ON j.id = js.job_id
+                WHERE j.status = :status
+                ORDER BY s.name COLLATE NOCASE ASC
+            ");
+            $stmt->execute([':status' => 'Active']);
+            return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+}
+
+/**
+ * Validate an admin panel URL slug.
+ *
+ * Rules:
+ *   - Length: 8–64 characters
+ *   - Characters: alphanumeric and hyphens only
+ *   - Must contain at least one letter
+ *   - Must contain at least one digit
+ *   - Must NOT be in the blocklist (case-insensitive)
+ *
+ * @param string $slug The slug value to validate
+ * @return bool True if valid, false otherwise
+ */
+if (!function_exists('cpvia_validate_admin_slug')) {
+    function cpvia_validate_admin_slug(string $slug): bool
+    {
+        // Length check: 8–64 characters
+        $len = strlen($slug);
+        if ($len < 8 || $len > 64) {
+            return false;
+        }
+
+        // Characters: only alphanumeric and hyphens
+        if (!preg_match('/^[a-zA-Z0-9\-]+$/', $slug)) {
+            return false;
+        }
+
+        // Must contain at least one letter
+        if (!preg_match('/[a-zA-Z]/', $slug)) {
+            return false;
+        }
+
+        // Must contain at least one digit
+        if (!preg_match('/[0-9]/', $slug)) {
+            return false;
+        }
+
+        // Blocklist check (case-insensitive)
+        $blocklist = ['admin', 'login', 'dashboard', 'wp-admin', 'administrator', 'panel', 'backend'];
+        if (in_array(strtolower($slug), $blocklist, true)) {
+            return false;
+        }
+
+        return true;
     }
 }

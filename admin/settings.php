@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'company_name'     => trim((string) ($_POST['company_name'] ?? 'CPVIA')),
             'email_subject_template' => (string) ($_POST['email_subject_template'] ?? ''),
             'email_body_template'    => (string) ($_POST['email_body_template'] ?? ''),
+            'careers_intro_summary'  => (string) ($_POST['careers_intro_summary'] ?? ''),
         ];
 
         // Validation
@@ -63,6 +64,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'The email subject template cannot be empty.';
         } elseif ($incoming['email_body_template'] === '') {
             $error = 'The email body template cannot be empty.';
+        }
+
+        // Validate careers intro summary (only if a value was submitted)
+        if ($error === '' && $incoming['careers_intro_summary'] !== '') {
+            $summary_error = cpvia_validate_intro_summary($incoming['careers_intro_summary']);
+            if ($summary_error !== '') {
+                $error = $summary_error;
+            }
         }
 
         // Persist first (item 9: the test always uses freshly-saved values).
@@ -230,6 +239,16 @@ $smtp_missing = cpvia_smtp_missing_fields($s);
                     <span class="settings-placeholder-chip" title="<?php echo htmlspecialchars($desc); ?>"><?php echo htmlspecialchars($ph); ?></span>
                 <?php endforeach; ?>
             </div>
+        </div>
+    </div>
+
+    <div class="form-section-card">
+        <h3>Careers Page Summary</h3>
+        <p class="form-section-sub">An introductory summary displayed on the public careers page above job listings. Must be between 40 and 120 words.</p>
+        <div class="form-group">
+            <label for="careers_intro_summary">Introductory Summary</label>
+            <textarea id="careers_intro_summary" name="careers_intro_summary" rows="5"><?php echo htmlspecialchars($s['careers_intro_summary']); ?></textarea>
+            <small class="field-hint">Word count must be between 40 and 120. Current: <?php echo str_word_count(strip_tags($s['careers_intro_summary'])); ?> words.</small>
         </div>
     </div>
 

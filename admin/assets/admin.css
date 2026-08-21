@@ -1581,3 +1581,467 @@ table.admin-table {
 }
 .smtp-status-list { margin: 0.5rem 0 0; padding-left: 1.2rem; }
 .smtp-status-list li { margin: 0.15rem 0; font-weight: 600; }
+
+/* =========================================================================
+   JOB LIFECYCLE BUTTONS — Close/Archive & Reopen (Task 7.3)
+   ========================================================================= */
+
+.inline-action-form {
+    display: inline-block;
+    margin: 0;
+}
+
+.btn-archive-pill {
+    background: var(--primary-blue);
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    transition: 0.25s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    line-height: 1.2;
+}
+.btn-archive-pill:hover {
+    background: var(--primary-blue-dark);
+    transform: translateY(-1px);
+}
+.btn-archive-pill:focus {
+    outline: 3px solid rgba(61, 26, 138, 0.18);
+    outline-offset: 2px;
+}
+
+.btn-reopen-pill {
+    background: #10b981;
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    transition: 0.25s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    line-height: 1.2;
+}
+.btn-reopen-pill:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+.btn-reopen-pill:focus {
+    outline: 3px solid rgba(16, 185, 129, 0.2);
+    outline-offset: 2px;
+}
+
+/* =========================================================================
+   SINGLE-PAGE JOB EDITOR — Collapsible sections (Task 9.1 styling)
+   ========================================================================= */
+
+.edit-single-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.edit-section {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.edit-section[open] {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.edit-section-header {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    padding: 1.1rem 1.5rem;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.15s ease;
+    list-style: none;
+}
+
+.edit-section-header::-webkit-details-marker {
+    display: none;
+}
+
+.edit-section-header::before {
+    content: '▸';
+    font-size: 0.85rem;
+    color: #999;
+    transition: transform 0.2s ease;
+}
+
+.edit-section[open] > .edit-section-header::before {
+    transform: rotate(90deg);
+}
+
+.edit-section-header:hover {
+    background: #f9f9fb;
+}
+
+.edit-section[open] > .edit-section-header {
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafafe;
+}
+
+.edit-section-form {
+    padding: 1.5rem;
+}
+
+.edit-section-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.edit-section-form .form-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.4rem;
+}
+
+.edit-section-form .form-group label .req {
+    color: #dc2626;
+}
+
+.edit-section-form input[type="text"],
+.edit-section-form input[type="number"],
+.edit-section-form input[type="email"],
+.edit-section-form input[type="url"],
+.edit-section-form select,
+.edit-section-form textarea {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    color: #1a1a1a;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.edit-section-form input:focus,
+.edit-section-form select:focus,
+.edit-section-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue, #3D1A8A);
+    box-shadow: 0 0 0 3px rgba(61, 26, 138, 0.08);
+}
+
+.edit-section-form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.edit-section-form .form-group-checkbox label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding-top: 1.8rem;
+}
+
+.edit-section-form .form-group-checkbox input[type="checkbox"] {
+    width: auto;
+    accent-color: var(--primary-blue, #3D1A8A);
+}
+
+.form-actions {
+    padding-top: 0.75rem;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 0.5rem;
+}
+
+.form-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.6rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.form-actions .btn-primary {
+    background: var(--primary-blue, #3D1A8A);
+    color: #fff;
+}
+
+.form-actions .btn-primary:hover {
+    background: #2e1370;
+    transform: translateY(-1px);
+}
+
+.form-actions .btn-primary:focus {
+    outline: 3px solid rgba(61, 26, 138, 0.2);
+    outline-offset: 2px;
+}
+
+/* Grid layouts for editor form fields */
+.edit-section-form .wiz-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.edit-section-form .wiz-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+}
+
+.edit-section-form .wiz-grid-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .edit-section-form .wiz-grid-2,
+    .edit-section-form .wiz-grid-3,
+    .edit-section-form .wiz-grid-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .edit-section-form {
+        padding: 1rem;
+    }
+}
+
+/* Skill picker placeholder styling */
+.skill-picker {
+    min-height: 42px;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.82rem;
+    color: #6b7280;
+}
+
+.field-hint {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+
+/* =========================================================================
+   SINGLE-PAGE JOB EDITOR (edit_job_single.php)
+   ========================================================================= */
+
+.edit-single-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 0 3rem;
+}
+
+/* --- Section (details/summary) --- */
+.edit-section {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.edit-section[open] {
+    box-shadow: 0 4px 16px rgba(61,26,138,0.08);
+    border-color: var(--primary-blue, #3D1A8A);
+}
+
+.edit-section-header {
+    display: flex;
+    align-items: center;
+    padding: 1.1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-heading, #1a1a2e);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    transition: background 0.15s ease;
+}
+
+.edit-section-header::-webkit-details-marker {
+    display: none;
+}
+
+.edit-section-header::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--primary-blue, #3D1A8A);
+    border-bottom: 2px solid var(--primary-blue, #3D1A8A);
+    transform: rotate(-45deg);
+    margin-right: 12px;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.edit-section[open] > .edit-section-header::before {
+    transform: rotate(45deg);
+}
+
+.edit-section-header:hover {
+    background: #f9f7fc;
+}
+
+/* --- Section form content --- */
+.edit-section-form {
+    padding: 0 1.5rem 1.5rem;
+}
+
+/* --- Form actions (save button per section) --- */
+.form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+/* --- Button styles for the editor --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.6rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--primary-blue, #3D1A8A);
+    color: #fff;
+    border-color: var(--primary-blue, #3D1A8A);
+}
+
+.btn-primary:hover {
+    background: #2e1370;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(61,26,138,0.25);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* --- Checkbox styling in sections --- */
+.form-group-checkbox {
+    display: flex;
+    align-items: center;
+    padding-top: 1.8rem;
+}
+
+.form-group-checkbox label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.form-group-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-blue, #3D1A8A);
+}
+
+/* --- Rich text editor textareas --- */
+.edit-section-form .richtext-editor {
+    min-height: 160px;
+    font-family: inherit;
+    line-height: 1.7;
+}
+
+/* --- Skill picker placeholder styling --- */
+.skill-picker {
+    background: #f9f9f9;
+    border: 1px dashed #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 60px;
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.skill-picker::before {
+    content: 'Enter skill IDs in the hidden field (comma-separated)';
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .edit-single-container {
+        padding: 0 0 2rem;
+    }
+    .edit-section-header {
+        padding: 1rem 1.25rem;
+        font-size: 0.92rem;
+    }
+    .edit-section-form {
+        padding: 0 1.25rem 1.25rem;
+    }
+    .form-actions {
+        flex-direction: column;
+    }
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+
+
+/* Subsection titles within editor sections */
+.edit-subsection-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 1.5rem 0 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.edit-subsection-title:first-child {
+    margin-top: 0;
+}
